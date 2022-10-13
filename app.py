@@ -6,13 +6,14 @@ SCREEN_TITLE = "Galaga"
 
 
 class User(arcade.Sprite):
-
+    """
     def __init__(self):
         # Initializing user variables
         self.center_x = 225
         self.center_y = 50
         self.change_x = 0
         self.change_y = 0
+    """
 
     def update(self):
         # Updates the location of the user
@@ -34,10 +35,13 @@ class User(arcade.Sprite):
 class Game(arcade.Window):
 
     def __init__(self, width, height, title):
+        # Call the parent class initializer
         super().__init__(width, height, title)
 
         # self.user_list = None
+        self.sprite_list = []
 
+        # Create User
         self.user = User()
 
         # Set background color
@@ -45,7 +49,7 @@ class Game(arcade.Window):
 
     def setup(self):
         # sprite lists here
-        self.sprite_list = []
+        self.sprite_list = arcade.SpriteList()
 
         # User Setup
         self.user.center_x = 225
@@ -53,8 +57,11 @@ class Game(arcade.Window):
         self.user.user_width = 15
         self.user.user_height = 15
         self.user.user_color = arcade.color.ORANGE_RED
-        arcade.draw_rectangle_filled(self.center_x + self.change_x, self.center_y + self.change_y,
-                                     self.user.user_width, self.user.user_height, self.user.user_color)
+        self.user = arcade.draw_rectangle_filled(self.user.center_x + self.user.change_x,
+                                                 self.user.center_y + self.user.change_y, self.user.user_width,
+                                                 self.user.user_height, self.user.user_color)
+        # arcade.draw_rectangle_filled(self.center_x + self.change_x, self.center_y + self.change_y,
+        #                              self.user.user_width, self.user.user_height, self.user.user_color)
         self.sprite_list.append(self.user)
 
     def on_draw(self):
