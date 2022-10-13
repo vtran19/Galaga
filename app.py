@@ -5,7 +5,8 @@ SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
 
 
-class User:
+class User(arcade.Sprite):
+
     def __init__(self):
         # Initializing user variables
         self.center_x = 225
@@ -18,6 +19,7 @@ class User:
         self.center_x += self.change_x
         self.center_y += self.change_y
 
+    """
     def draw(self):
         # User dimensions and draws square, update to look better
         user_width = 15
@@ -26,6 +28,7 @@ class User:
         # Draws rec
         arcade.draw_rectangle_filled(self.center_x+self.change_x, self.center_y+self.change_y, user_width,
                                      user_height, user_color)
+    """
 
 
 class Game(arcade.Window):
@@ -33,24 +36,44 @@ class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
+        # self.user_list = None
+
         self.user = User()
 
         # Set background color
         self.background_color = arcade.color.BLACK
 
-    def on_update(self, delta_time):
-        self.user.update()
+    def setup(self):
+        # sprite lists here
+        self.sprite_list = []
+
+        # User Setup
+        self.user.center_x = 225
+        self.user.center_y = 50
+        self.user.user_width = 15
+        self.user.user_height = 15
+        self.user.user_color = arcade.color.ORANGE_RED
+        arcade.draw_rectangle_filled(self.center_x + self.change_x, self.center_y + self.change_y,
+                                     self.user.user_width, self.user.user_height, self.user.user_color)
+        self.sprite_list.append(self.user)
 
     def on_draw(self):
         self.clear()
-        self.user.draw()
+
+        # Draw all sprites in list
+        self.sprite_list.draw()
+        # self.user.draw()
+
+    def on_update(self, delta_time):
+        self.user.update()
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
+        movement_speed = 5
         if key == arcade.key.LEFT:
-            self.user.change_x = -5
+            self.user.change_x = -movement_speed
         elif key == arcade.key.RIGHT:
-            self.user.change_x = 5
+            self.user.change_x = movement_speed
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
@@ -59,7 +82,8 @@ class Game(arcade.Window):
 
 def main():
 
-    Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    game.setup()
     arcade.run()
 
 
