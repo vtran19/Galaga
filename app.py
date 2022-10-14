@@ -1,8 +1,53 @@
 import arcade
+import os
 
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
+
+#Enemy Constants
+SPRITE_SCALING_ENEMY = 0.5
+ENEMY_SPEED = 3.0
+class Enemy(arcade.Sprite):
+    """
+        Class to represent enemies on the screen. Likely to split up into more than one class
+        later to reflect different enemy types
+    """
+    def __init__(self, image, scale, position_list):
+        super().__init__(image, scale)
+        self.position_list = position_list
+        self.cur_position = 0
+        self.speed = ENEMY_SPEED
+
+    def update(self):
+        """Make enemies follow a path. To start, enemies move side to side"""
+        #Start location
+        start_x = self.center_x
+
+        #Destination
+        dest_x = self.position_list[self.cur_position][0]
+
+        #find distance
+        distance = dest_x - start_x
+
+        #calculate speed, use minimum function to make sure we don't overshoot dest
+        speed = min(self.speed, distance)
+
+        #calculate change x 
+        if(distance > 0):
+            change_x = speed
+        else:
+            change_x = -speed
+        #update enemy center_x to reflect movement
+        self.center_x += change_x
+
+        #update self.cur_position so enemy moves back and forth between two positions
+        if self.cur_position == self.position_list[0][0]:
+            self.cur_position += 1
+        else:
+            self.cur_position = 0
+
+
 
 
 class User:
@@ -33,16 +78,40 @@ class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
-        self.user = User()
+        self.user = None
+        self.enemy_list = None
 
         # Set background color
         self.background_color = arcade.color.BLACK
 
+    def setup(self):
+        #Set up the user
+        self.user = User()
+
+        #Sprite Lists
+        self.enemy_list = arcade.SpriteList()
+
+        #List of points the enemy will travel too 
+        position_list = [[200,200],[300,200]]
+
+        #Create enemy
+        enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
+        #Set enemy initial position
+        enemy.center_x = position_list[0][0]
+        enemy.center_y = position_list[0][1]
+
+        #append enemy to enemy_list
+        self.enemy_list.append(enemy)
+                
+
+
     def on_update(self, delta_time):
         self.user.update()
+        self.enemy_list.update()
 
     def on_draw(self):
         self.clear()
+        self.enemy_list.draw()
         self.user.draw()
 
     def on_key_press(self, key, modifiers):
@@ -59,7 +128,8 @@ class Game(arcade.Window):
 
 def main():
 
-    Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window.setup()
     arcade.run()
 
 
