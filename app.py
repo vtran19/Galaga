@@ -1,87 +1,76 @@
 import arcade
+import os
 
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
 
+# User constants
+SPRITE_SCALE_USER = 0.05
+USER_SPEED = 3.0
+
 
 class User(arcade.Sprite):
-    """
-    def __init__(self):
-        # Initializing user variables
-        self.center_x = 225
-        self.center_y = 50
+    """ User Class """
+    def __init__(self, image, scale):
+        super().__init__(image, scale)
         self.change_x = 0
         self.change_y = 0
-        what is happening??
-    """
 
     def update(self):
         # Updates the location of the user
         self.center_x += self.change_x
         self.center_y += self.change_y
 
-    """
-    def draw(self):
-        # User dimensions and draws square, update to look better
-        user_width = 15
-        user_height = 15
-        user_color = arcade.color.ORANGE_RED
-        # Draws rec
-        arcade.draw_rectangle_filled(self.center_x+self.change_x, self.center_y+self.change_y, user_width,
-                                     user_height, user_color)
-    """
+        # Keeps player in-bounds
+        if self.left < 0:
+            self.left = 0
+        elif self.right > SCREEN_WIDTH - 1:
+            self.right = SCREEN_WIDTH - 1
 
 
 class Game(arcade.Window):
-
     def __init__(self, width, height, title):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
-        # self.user_list = None
-        self.sprite_list = []
+        self.user_list = None
 
-        # Create User
-        self.user = User()
+        # Set up user info (?)
+        self.user_sprite = None
 
         # Set background color
         self.background_color = arcade.color.BLACK
 
     def setup(self):
-        # sprite lists here
-        self.sprite_list = arcade.SpriteList()
+        # Sprite lists
+        self.user_list = arcade.SpriteList()
 
-        # User Setup
+        # Create user
+        self.user = User(os.path.expanduser("~/Desktop/user_ship.png"), SPRITE_SCALE_USER)
+        # set user initial position
         self.user.center_x = 225
         self.user.center_y = 50
-        self.user.user_width = 15
-        self.user.user_height = 15
-        self.user.user_color = arcade.color.ORANGE_RED
-        self.user = arcade.draw_rectangle_filled(self.user.center_x + self.user.change_x,
-                                                 self.user.center_y + self.user.change_y, self.user.user_width,
-                                                 self.user.user_height, self.user.user_color)
-        # arcade.draw_rectangle_filled(self.center_x + self.change_x, self.center_y + self.change_y,
-        #                              self.user.user_width, self.user.user_height, self.user.user_color)
-        self.sprite_list.append(self.user)
 
-    def on_draw(self):
-        self.clear()
-
-        # Draw all sprites in list
-        self.sprite_list.draw()
-        # self.user.draw()
+        # append user to user_list
+        self.user_list.append(self.user)
 
     def on_update(self, delta_time):
-        self.user.update()
+        self.user_list.update()
+
+    def on_draw(self):
+        arcade.start_render()
+        self.clear()
+
+        # Draws sprites
+        self.user_list.draw()
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
-        movement_speed = 5
         if key == arcade.key.LEFT:
-            self.user.change_x = -movement_speed
+            self.user.change_x = -USER_SPEED
         elif key == arcade.key.RIGHT:
-            self.user.change_x = movement_speed
+            self.user.change_x = USER_SPEED
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
