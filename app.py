@@ -13,6 +13,7 @@ class User(arcade.Sprite):
         self.center_y = 50
         self.change_x = 0
         self.change_y = 0
+        what is happening??
     """
 
     def update(self):
