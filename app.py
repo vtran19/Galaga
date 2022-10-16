@@ -1,3 +1,5 @@
+from operator import truediv
+from tokenize import Pointfloat
 import arcade
 
 SCREEN_WIDTH = 450
@@ -27,6 +29,21 @@ class User:
         arcade.draw_rectangle_filled(self.center_x+self.change_x, self.center_y+self.change_y, user_width,
                                      user_height, user_color)
 
+    def is_overlapping_edge(self) -> bool:
+        # Returns true if user is overlapping an edge
+        edges = arcade.get_viewport
+        if self.left <= edges[0]:
+            return True
+        if self.right >= edges[1]:
+            return True
+        if self.bottom <= edges[2]:
+            return True
+        if self.top >= edges[3]:
+            return True
+        return False
+
+
+    
 
 class Game(arcade.Window):
 
