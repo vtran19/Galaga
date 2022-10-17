@@ -47,7 +47,7 @@ class Game(arcade.Window):
         self.user_list = arcade.SpriteList()
 
         # Create user
-        self.user = User(os.path.expanduser("~/Desktop/user_ship.png"), SPRITE_SCALE_USER)
+        self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
         # set user initial position
         self.user.center_x = 225
         self.user.center_y = 50
