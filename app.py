@@ -14,11 +14,19 @@ class User:
         self.center_y = 50
         self.change_x = 0
         self.change_y = 0
+        self.left = 210
+        self.right = 240
+        self.top = 65
+        self.bottom = 35
 
     def update(self):
         # Updates the location of the user
         self.center_x += self.change_x
         self.center_y += self.change_y
+        self.left += self.change_x
+        self.right += self.change_x
+        self.top += self.change_y
+        self.bottom += self.change_y
 
     def draw(self):
         # User dimensions and draws square, update to look better
@@ -58,6 +66,33 @@ class Game(arcade.Window):
     def on_update(self, delta_time):
         self.user.update()
 
+        # Limits user to inside the dimensions of the screen
+        if self.user.left <= 0:
+            self.user.center_x += 5 
+            self.user.left += 5
+            self.user.right += 5
+        if self.user.right >= SCREEN_WIDTH:
+            self.user.center_x -= 5
+            self.user.right -= 5
+            self.user.left -= 5
+        if self.user.top >= SCREEN_HEIGHT:
+            self.user.center_y -= 5
+            self.user.top -= 5
+            self.user.bottom -= 5
+        if self.user.bottom <=0:
+            self.user.center_y += 5
+            self.user.top += 5
+            self.user.bottom += 5
+        
+        # TODO: If user collides with rocket (rocket isn't made yet)
+        # store in list
+        # colliding_with = arcade.check_for_collision_with_list(
+        #     self.user, #TODO: put list of potential colliding items here (missles)
+        # )
+
+        #TODO: Loop through  olliding_with and take away a life etc.
+
+
     def on_draw(self):
         self.clear()
         self.user.draw()
@@ -68,10 +103,16 @@ class Game(arcade.Window):
             self.user.change_x = -5
         elif key == arcade.key.RIGHT:
             self.user.change_x = 5
+        elif key == arcade.key.UP:
+            self.user.change_y = 5
+        elif key == arcade.key.DOWN:
+            self.user.change_y = -5
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.user.change_x = 0
+        if key == arcade.key.UP or key == arcade.key.DOWN:
+            self.user.change_y = 0
 
 
 def main():
