@@ -2,14 +2,87 @@ from operator import truediv
 from tokenize import Pointfloat
 import arcade
 import os
+import math
+import random
+from time import perf_counter
+
 
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
 
-# User constants
-SPRITE_SCALE_USER = 0.04
-USER_SPEED = 3.0
+#Enemy Constants
+SPRITE_SCALING_ENEMY = 2
+ENEMY_SPEED = .75
+NUM_ENEMY_1 = 20
+class Enemy(arcade.Sprite):
+    """
+        Class to represent enemies on the screen. Likely to split up into more than one class
+        later to reflect different enemy types
+    """
+    def __init__(self, image, scale, position_list):
+        # timer for enemy lifespan related to movement, start timer
+        self.start_time = perf_counter()
+        # when should the enemy randomly dive 
+        self.dive_time = random.uniform(self.start_time + 10, self.start_time + 60)
+        # dive x location, needs to remain constant 
+        self.dive_dest = [random.randint(0, 450), -20]
+
+        super().__init__(image, scale)
+        self.position_list = position_list
+        self.cur_position = 0
+        self.speed = ENEMY_SPEED
+
+
+    def update(self):
+        """Make enemies follow a path. To start, enemies move side to side"""
+        #Start location
+        start_x = self.center_x
+        start_y = self.center_y
+
+        # calulate enemy lifespan to see if the enemy should dive towards the player
+        if self.dive_time <= (perf_counter() - self.start_time):
+            dest_x = self.dive_dest[0]
+            dest_y = self.dive_dest[1]
+            self.speed = 5
+        else:
+            #Destination
+            dest_x = self.position_list[self.cur_position][0]
+            dest_y = self.position_list[self.cur_position][1]
+
+        #Find x and y diff between two locations
+        x_diff = dest_x - start_x
+        y_diff = dest_y - start_y
+
+        # update position list when enemy is at the edge so it moves down
+        if self.center_x in [25, 425]:
+            for i in range(0, 4):
+                self.position_list[i][1] = self.position_list[i][1] - 50
+
+        # Calculate angle to get there
+        angle = math.atan2(y_diff, x_diff)
+
+        # How far are we?
+        distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
+
+        #calculate speed, use minimum function to make sure we don't overshoot dest
+        speed = min(self.speed, distance)
+
+        #update enemy center_x to reflect movement
+        self.center_x += math.cos(angle) * speed
+        self.center_y += math.sin(angle) * speed
+
+        #find distance
+        distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
+
+        #update self.cur_position so enemy moves back and forth between two positions
+        if distance == 0:
+            self.cur_position += 1
+            if self.cur_position >= 4:
+                self.cur_position = 0
+                
+        
+
 
 
 class User(arcade.Sprite):
@@ -63,29 +136,41 @@ class Game(arcade.Window):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
-        self.user_list = None
-
-        # Set up user info (?)
-        self.user_sprite = None
+        self.user = None
+        self.enemy_list = None
 
         # Set background color
         self.background_color = arcade.color.BLACK
 
     def setup(self):
-        # Sprite lists
-        self.user_list = arcade.SpriteList()
+        #Set up the user
+        self.user = User()
 
-        # Create user
-        self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
-        # set user initial position
-        self.user.center_x = 225
-        self.user.center_y = 50
+        #Sprite Lists
+        self.enemy_list = arcade.SpriteList()
 
-        # append user to user_list
-        self.user_list.append(self.user)
+        #List of points the enemy will travel too 
+        position_list = [[25,500],
+                        [425,500],
+                        [25,500],
+                        [425,500]]
+
+        #Create enemy
+        enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
+
+
+        #Set enemy initial position
+        enemy.center_x = 225
+        enemy.center_y = 500
+
+        #append enemy to enemy_list
+        self.enemy_list.append(enemy)
+                
+
 
     def on_update(self, delta_time):
-        self.user_list.update()
+        self.user.update()
+        self.enemy_list.update()
 
         self.user.avoid_boundaries()
         
@@ -100,9 +185,8 @@ class Game(arcade.Window):
     def on_draw(self):
         arcade.start_render()
         self.clear()
-
-        # Draws sprites
-        self.user_list.draw()
+        self.enemy_list.draw()
+        self.user.draw()
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
