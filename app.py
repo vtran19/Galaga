@@ -103,16 +103,10 @@ class Game(arcade.Window):
             self.user.change_x = -5
         elif key == arcade.key.RIGHT:
             self.user.change_x = 5
-        elif key == arcade.key.UP:
-            self.user.change_y = 5
-        elif key == arcade.key.DOWN:
-            self.user.change_y = -5
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.user.change_x = 0
-        if key == arcade.key.UP or key == arcade.key.DOWN:
-            self.user.change_y = 0
 
 
 def main():
