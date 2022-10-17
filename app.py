@@ -58,8 +58,6 @@ class User(arcade.Sprite):
             self.bottom += 5
 
 
-    
-
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         # Call the parent class initializer
@@ -98,7 +96,6 @@ class Game(arcade.Window):
         # )
 
         #TODO: Loop through  olliding_with and take away a life etc.
-
 
     def on_draw(self):
         arcade.start_render()
