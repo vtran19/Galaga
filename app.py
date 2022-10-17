@@ -10,10 +10,12 @@ from time import perf_counter
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
+SPRITE_SCALE_USER = 0.04
+USER_SPEED = 3.0
 
 #Enemy Constants
 SPRITE_SCALING_ENEMY = 2
-ENEMY_SPEED = .75
+ENEMY_SPEED = 2
 NUM_ENEMY_1 = 20
 class Enemy(arcade.Sprite):
     """
@@ -144,7 +146,7 @@ class Game(arcade.Window):
 
     def setup(self):
         #Set up the user
-        self.user = User()
+        self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
 
         #Sprite Lists
         self.enemy_list = arcade.SpriteList()
@@ -157,7 +159,7 @@ class Game(arcade.Window):
 
         #Create enemy
         enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
-
+        
 
         #Set enemy initial position
         enemy.center_x = 225
