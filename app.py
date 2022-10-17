@@ -11,6 +11,7 @@ SCREEN_TITLE = "Galaga"
 #Enemy Constants
 SPRITE_SCALING_ENEMY = 2
 ENEMY_SPEED = .75
+NUM_ENEMY_1 = 20
 class Enemy(arcade.Sprite):
     """
         Class to represent enemies on the screen. Likely to split up into more than one class
@@ -129,18 +130,23 @@ class Game(arcade.Window):
         #Sprite Lists
         self.enemy_list = arcade.SpriteList()
 
-        #List of points the enemy will travel too 
+        #List of initial points the first enemy will travel too 
         position_list = [[250,200],
                         [225,200],
                         [250,200],
                         [275,200]]
 
-        #Create enemy
-        enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
+        #Generate list of enemies in two different rows
+        for i in range(NUM_ENEMY_1/2):
+            for point in position_list:
+                newPoint = [point[0]+50,point[1]]
+                position_list.insert(i, newPoint)
+            enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
+            self.enemy_list.append(enemy)
         #Set enemy initial position
         enemy.center_x = 250
         enemy.center_y = 200
-
+        
         #append enemy to enemy_list
         self.enemy_list.append(enemy)
                 
