@@ -84,11 +84,11 @@ class Enemy(arcade.Sprite):
         
 
 
-class User:
-    def __init__(self):
-        # Initializing user variables
-        self.center_x = 225
-        self.center_y = 50
+
+class User(arcade.Sprite):
+    """ User Class """
+    def __init__(self, image, scale):
+        super().__init__(image, scale)
         self.change_x = 0
         self.change_y = 0
         self.left = 210
@@ -105,14 +105,11 @@ class User:
         self.top += self.change_y
         self.bottom += self.change_y
 
-    def draw(self):
-        # User dimensions and draws square, update to look better
-        user_width = 15
-        user_height = 15
-        user_color = arcade.color.ORANGE_RED
-        # Draws rec
-        arcade.draw_rectangle_filled(self.center_x+self.change_x, self.center_y+self.change_y, user_width,
-                                     user_height, user_color)
+        # Keeps player in-bounds
+        if self.left < 0:
+            self.left = 0
+        elif self.right > SCREEN_WIDTH - 1:
+            self.right = SCREEN_WIDTH - 1
 
     def avoid_boundaries(self):
         # Makes sure user never goes beyond the edges of the screen
@@ -134,11 +131,9 @@ class User:
             self.bottom += 5
 
 
-    
-
 class Game(arcade.Window):
-
     def __init__(self, width, height, title):
+        # Call the parent class initializer
         super().__init__(width, height, title)
 
         self.user = None
@@ -187,8 +182,8 @@ class Game(arcade.Window):
 
         #TODO: Loop through  olliding_with and take away a life etc.
 
-
     def on_draw(self):
+        arcade.start_render()
         self.clear()
         self.enemy_list.draw()
         self.user.draw()
@@ -196,9 +191,9 @@ class Game(arcade.Window):
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
         if key == arcade.key.LEFT:
-            self.user.change_x = -5
+            self.user.change_x = -USER_SPEED
         elif key == arcade.key.RIGHT:
-            self.user.change_x = 5
+            self.user.change_x = USER_SPEED
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
@@ -207,8 +202,8 @@ class Game(arcade.Window):
 
 def main():
 
-    window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.setup()
+    game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    game.setup()
     arcade.run()
 
 
