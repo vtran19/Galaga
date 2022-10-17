@@ -37,18 +37,24 @@ class User:
         arcade.draw_rectangle_filled(self.center_x+self.change_x, self.center_y+self.change_y, user_width,
                                      user_height, user_color)
 
-    def is_overlapping_edge(self) -> bool:
-        # Returns true if user is overlapping an edge
-        edges = arcade.get_viewport
-        if self.left <= edges[0]:
-            return True
-        if self.right >= edges[1]:
-            return True
-        if self.bottom <= edges[2]:
-            return True
-        if self.top >= edges[3]:
-            return True
-        return False
+    def avoid_boundaries(self):
+        # Makes sure user never goes beyond the edges of the screen
+        if self.left <= 0:
+            self.center_x += 5 
+            self.left += 5
+            self.right += 5
+        if self.right >= SCREEN_WIDTH:
+            self.center_x -= 5
+            self.right -= 5
+            self.left -= 5
+        if self.top >= SCREEN_HEIGHT:
+            self.center_y -= 5
+            self.top -= 5
+            self.bottom -= 5
+        if self.bottom <=0:
+            self.center_y += 5
+            self.top += 5
+            self.bottom += 5
 
 
     
@@ -66,23 +72,7 @@ class Game(arcade.Window):
     def on_update(self, delta_time):
         self.user.update()
 
-        # Limits user to inside the dimensions of the screen
-        if self.user.left <= 0:
-            self.user.center_x += 5 
-            self.user.left += 5
-            self.user.right += 5
-        if self.user.right >= SCREEN_WIDTH:
-            self.user.center_x -= 5
-            self.user.right -= 5
-            self.user.left -= 5
-        if self.user.top >= SCREEN_HEIGHT:
-            self.user.center_y -= 5
-            self.user.top -= 5
-            self.user.bottom -= 5
-        if self.user.bottom <=0:
-            self.user.center_y += 5
-            self.user.top += 5
-            self.user.bottom += 5
+        self.user.avoid_boundaries()
         
         # TODO: If user collides with rocket (rocket isn't made yet)
         # store in list
