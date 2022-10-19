@@ -15,7 +15,7 @@ USER_SPEED = 3.0
 
 #Enemy Constants
 SPRITE_SCALING_ENEMY = 2
-ENEMY_SPEED = 2
+ENEMY_SPEED = 1
 NUM_ENEMY_1 = 20
 class Enemy(arcade.Sprite):
     """
@@ -26,7 +26,7 @@ class Enemy(arcade.Sprite):
         # timer for enemy lifespan related to movement, start timer
         self.start_time = perf_counter()
         # when should the enemy randomly dive 
-        self.dive_time = random.uniform(self.start_time + 10, self.start_time + 60)
+        self.dive_time = random.uniform(self.start_time + 5, self.start_time + 20)
         # dive x location, needs to remain constant 
         self.dive_dest = [random.randint(0, 450), -20]
 
@@ -138,6 +138,17 @@ class Game(arcade.Window):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
+        # Timer initialization
+        self.total_time = 0.0
+        self.timer_text = arcade.Text(
+            text="00:00:00",
+            start_x=SCREEN_WIDTH - 425,
+            start_y=SCREEN_HEIGHT - 20,
+            color=arcade.color.WHITE,
+            font_size=15,
+            anchor_x="center",
+        )
+
         self.user = None
         self.enemy_list = None
 
@@ -147,6 +158,9 @@ class Game(arcade.Window):
     def setup(self):
         #Set up the user
         self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
+
+        # Setup timer
+        self.total_time = 0.0
 
         #Sprite Lists
         self.enemy_list = arcade.SpriteList()
@@ -171,6 +185,18 @@ class Game(arcade.Window):
 
 
     def on_update(self, delta_time):
+        # get total time 
+        self.total_time += delta_time
+
+        # Calculate minutes
+        minutes = int(self.total_time) // 60
+
+        # Calculate seconds by using a modulus (remainder)
+        seconds = int(self.total_time) % 60
+
+        # format timer
+        self.timer_text.text = f"{minutes:02d}:{seconds:02d}"
+
         self.user.update()
         self.enemy_list.update()
 
@@ -187,6 +213,7 @@ class Game(arcade.Window):
     def on_draw(self):
         arcade.start_render()
         self.clear()
+        self.timer_text.draw()
         self.enemy_list.draw()
         self.user.draw()
 
