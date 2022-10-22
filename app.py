@@ -17,6 +17,8 @@ USER_SPEED = 3.0
 SPRITE_SCALING_ENEMY = 2
 ENEMY_SPEED = 2
 NUM_ENEMY_1 = 20
+
+
 class Enemy(arcade.Sprite):
     """
         Class to represent enemies on the screen. Likely to split up into more than one class
@@ -110,32 +112,11 @@ class User(arcade.Sprite):
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
 
-    def avoid_boundaries(self):
-        """
-        # Makes sure user never goes beyond the edges of the screen
-        if self.left <= 0:
-            self.center_x += 5
-            self.left += 5
-            self.right += 5
-        if self.right >= SCREEN_WIDTH:
-            self.center_x -= 5
-            self.right -= 5
-            self.left -= 5
-        if self.top >= SCREEN_HEIGHT:
-            self.center_y -= 5
-            self.top -= 5
-            self.bottom -= 5
-        if self.bottom <=0:
-            self.center_y += 5
-            self.top += 5
-            self.bottom += 5
-        """
 
-
-class Game(arcade.Window):
-    def __init__(self, width, height, title):
+class GameView(arcade.View):
+    def __init__(self):
         # Call the parent class initializer
-        super().__init__(width, height, title)
+        super().__init__()
 
         self.user = None
         self.enemy_list = None
@@ -169,8 +150,6 @@ class Game(arcade.Window):
     def on_update(self, delta_time):
         self.user.update()
         self.enemy_list.update()
-
-        self.user.avoid_boundaries()
         
         # TODO: If user collides with rocket (rocket isn't made yet)
         # store in list
@@ -198,10 +177,59 @@ class Game(arcade.Window):
             self.user.change_x = 0
 
 
+class StartView(arcade.View):
+    def on_show_view(self):
+        arcade.set_background_color(arcade.csscolor.BLACK)
+        # to reset the viewport
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
+
+    def on_draw(self):
+        """ Draw this view """
+        self.clear()
+        arcade.draw_text("Galaga", self.window.width/2, self.window.height/2,
+                         arcade.color.WHITE)
+
+    def on_key_press(self, key, modifiers):
+        # Starts game
+        if key == arcade.key.S:
+            game_view = GameView()
+            game_view.setup()
+            self.window.show_view(game_view)
+        # Instructions
+        elif key == arcade.key.I:
+            game_view = InstructionsView()
+            # game_view.setup()
+            self.window.show_view(game_view)
+        # Quit
+        elif key == arcade.key.Q:
+            arcade.close_window()
+
+
+class InstructionsView(arcade.View):
+    def on_show_view(self):
+        """ This is run once when we switch to this view """
+        arcade.set_background_color(arcade.csscolor.BLACK)
+        # to reset the viewport
+        arcade.set_viewport(0, self.window.width, 0, self.window.height)
+
+    def on_draw(self):
+        """ Draw this view """
+        self.clear()
+        arcade.draw_text("Instructions Screen", self.window.width / 2, self.window.height / 2,
+                         arcade.color.WHITE)
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """ If the user presses the mouse button, start the game. """
+        game_view = GameView()
+        game_view.setup()
+        self.window.show_view(game_view)
+
+
 def main():
 
-    game = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    game.setup()
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    start_view = StartView()
+    window.show_view(start_view)
     arcade.run()
 
 
