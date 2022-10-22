@@ -186,8 +186,10 @@ class StartView(arcade.View):
     def on_draw(self):
         """ Draw this view """
         self.clear()
-        arcade.draw_text("Galaga", self.window.width/2, self.window.height/2,
-                         arcade.color.WHITE)
+        arcade.draw_text("GALAGA", 110, 400, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
+
+        arcade.draw_text("Press S to start \n Press I for instructions \n Press Q to quit", 150, 300,
+                         arcade.color.WHITE, 20, font_name="Kenney Pixel", multiline=True, width=300)
 
     def on_key_press(self, key, modifiers):
         # Starts game
