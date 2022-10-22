@@ -13,7 +13,7 @@ SCREEN_TITLE = "Galaga"
 SPRITE_SCALE_USER = 0.04
 USER_SPEED = 3.0
 
-#Enemy Constants
+# Enemy Constants
 SPRITE_SCALING_ENEMY = 2
 ENEMY_SPEED = 2
 NUM_ENEMY_1 = 20
@@ -38,21 +38,21 @@ class Enemy(arcade.Sprite):
 
     def update(self):
         """Make enemies follow a path. To start, enemies move side to side"""
-        #Start location
+        # Start location
         start_x = self.center_x
         start_y = self.center_y
 
-        # calulate enemy lifespan to see if the enemy should dive towards the player
+        # Calculate enemy lifespan to see if the enemy should dive towards the player
         if self.dive_time <= (perf_counter() - self.start_time):
             dest_x = self.dive_dest[0]
             dest_y = self.dive_dest[1]
             self.speed = 5
         else:
-            #Destination
+            # Destination
             dest_x = self.position_list[self.cur_position][0]
             dest_y = self.position_list[self.cur_position][1]
 
-        #Find x and y diff between two locations
+        # Find x and y diff between two locations
         x_diff = dest_x - start_x
         y_diff = dest_y - start_y
 
@@ -67,25 +67,22 @@ class Enemy(arcade.Sprite):
         # How far are we?
         distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
 
-        #calculate speed, use minimum function to make sure we don't overshoot dest
+        # calculate speed, use minimum function to make sure we don't overshoot dest
         speed = min(self.speed, distance)
 
-        #update enemy center_x to reflect movement
+        # update enemy center_x to reflect movement
         self.center_x += math.cos(angle) * speed
         self.center_y += math.sin(angle) * speed
 
-        #find distance
+        # find distance
         distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
 
-        #update self.cur_position so enemy moves back and forth between two positions
+        # update self.cur_position so enemy moves back and forth between two positions
         if distance == 0:
             self.cur_position += 1
             if self.cur_position >= 4:
                 self.cur_position = 0
                 
-        
-
-
 
 class User(arcade.Sprite):
     """ User Class """
@@ -114,9 +111,10 @@ class User(arcade.Sprite):
             self.right = SCREEN_WIDTH - 1
 
     def avoid_boundaries(self):
+        """
         # Makes sure user never goes beyond the edges of the screen
         if self.left <= 0:
-            self.center_x += 5 
+            self.center_x += 5
             self.left += 5
             self.right += 5
         if self.right >= SCREEN_WIDTH:
@@ -131,6 +129,7 @@ class User(arcade.Sprite):
             self.center_y += 5
             self.top += 5
             self.bottom += 5
+        """
 
 
 class Game(arcade.Window):
@@ -145,30 +144,27 @@ class Game(arcade.Window):
         self.background_color = arcade.color.BLACK
 
     def setup(self):
-        #Set up the user
+        # Set up the user
         self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
 
-        #Sprite Lists
+        # Sprite Lists
         self.enemy_list = arcade.SpriteList()
 
-        #List of points the enemy will travel too 
+        # List of points the enemy will travel too
         position_list = [[25,500],
                         [425,500],
                         [25,500],
                         [425,500]]
 
-        #Create enemy
+        # Create enemy
         enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
-        
 
-        #Set enemy initial position
+        # Set enemy initial position
         enemy.center_x = 225
         enemy.center_y = 500
 
-        #append enemy to enemy_list
+        # append enemy to enemy_list
         self.enemy_list.append(enemy)
-                
-
 
     def on_update(self, delta_time):
         self.user.update()
