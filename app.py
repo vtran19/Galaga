@@ -1,4 +1,5 @@
 from operator import truediv
+from re import U
 from tokenize import Pointfloat
 import arcade
 import os
@@ -7,34 +8,59 @@ import random
 from time import perf_counter
 
 
-SCREEN_WIDTH = 450
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Galaga"
 SPRITE_SCALE_USER = 0.04
 USER_SPEED = 3.0
-
+#Movement Constants
+UNIT_VECTOR_UP = [0.0,1.0]
+UNIT_VECTOR_DOWN = [0.0,-1.0]
 #Enemy Constants
 SPRITE_SCALING_ENEMY = 2
 ENEMY_SPEED = 1
-NUM_ENEMY_1 = 20
+ENEMY_INITIAL_SPACING = 25
 class Enemy(arcade.Sprite):
     """
         Class to represent enemies on the screen. Likely to split up into more than one class
         later to reflect different enemy types
     """
-    def __init__(self, image, scale, position_list):
+    def __init__(self, image, scale, position_list, movement_coefficients):
         # timer for enemy lifespan related to movement, start timer
-        self.start_time = perf_counter()
+        #self.start_time = perf_counter()
         # when should the enemy randomly dive 
-        self.dive_time = random.uniform(self.start_time + 5, self.start_time + 20)
+        #self.dive_time = random.uniform(self.start_time + 10, self.start_time + 60)
         # dive x location, needs to remain constant 
-        self.dive_dest = [random.randint(0, 450), -20]
+        #self.dive_dest = [random.randint(0, 450), -20]
 
         super().__init__(image, scale)
         self.position_list = position_list
         self.cur_position = 0
         self.speed = ENEMY_SPEED
+        self.movement_coefficients = movement_coefficients
+        self.movement_variable = 0.01
+        self.diving = False
 
+    def calculate_curve_point(self):
+        #define bezeir curve variables
+        t = self.movement_variable
+        tt = self.movement_variable ** 2
+        ttt = t * tt
+        u = 1.0 - t
+        uu = u * u
+        uuu = uu * u
+
+        #calculate point on curve based on self.movement_coefficients
+        point_x = (uuu * self.movement_coefficients[0][0]) + (3*uu*t* self.movement_coefficients[1][0]) + (3*u*tt* self.movement_coefficients[2][0]) + (ttt* self.movement_coefficients[3][0])
+        point_y = (uuu * self.movement_coefficients[0][1]) + (3*uu*t* self.movement_coefficients[1][1]) + (3*u*tt* self.movement_coefficients[2][1]) + (ttt* self.movement_coefficients[3][1])
+
+        #update movement_variable (t) 
+        self.movement_variable += .01
+        if self.movement_variable > 1.0:
+            self.movement_variable = .01
+
+        #return point
+        return [point_x, point_y]
 
     def update(self):
         """Make enemies follow a path. To start, enemies move side to side"""
@@ -42,50 +68,44 @@ class Enemy(arcade.Sprite):
         start_x = self.center_x
         start_y = self.center_y
 
-        # calulate enemy lifespan to see if the enemy should dive towards the player
-        if self.dive_time <= (perf_counter() - self.start_time):
-            dest_x = self.dive_dest[0]
-            dest_y = self.dive_dest[1]
-            self.speed = 5
-        else:
-            #Destination
+        if(self.diving):
+            #call calculate_curve_point for enemy if moving along curve
+            next_point = Enemy.calculate_curve_point(self)
+
+            self.center_x = next_point[0]
+            self.center_y = next_point[1]
+
+            if(self.center_x == self.position_list[0][0] and self.center_y == self.position_list[0][1]):
+                self.diving = False
+        else: #Idle Movement
             dest_x = self.position_list[self.cur_position][0]
             dest_y = self.position_list[self.cur_position][1]
 
-        #Find x and y diff between two locations
-        x_diff = dest_x - start_x
-        y_diff = dest_y - start_y
+            #Find x and y diff between two locations
+            x_diff = dest_x - start_x
+            y_diff = dest_y - start_y
 
-        # update position list when enemy is at the edge so it moves down
-        if self.center_x in [25, 425]:
-            for i in range(0, 4):
-                self.position_list[i][1] = self.position_list[i][1] - 50
+            # Calculate angle to get there
+            angle = math.atan2(y_diff, x_diff)
 
-        # Calculate angle to get there
-        angle = math.atan2(y_diff, x_diff)
+            # How far are we?
+            distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
 
-        # How far are we?
-        distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
+            #calculate speed, use minimum function to make sure we don't overshoot dest
+            speed = min(self.speed, distance)
 
-        #calculate speed, use minimum function to make sure we don't overshoot dest
-        speed = min(self.speed, distance)
+            #update enemy center_x to reflect movement
+            self.center_x += math.cos(angle) * speed
+            self.center_y += math.sin(angle) * speed
 
-        #update enemy center_x to reflect movement
-        self.center_x += math.cos(angle) * speed
-        self.center_y += math.sin(angle) * speed
+            #find distance
+            distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
 
-        #find distance
-        distance = math.sqrt((self.center_x - dest_x) ** 2 + (self.center_y - dest_y) ** 2)
-
-        #update self.cur_position so enemy moves back and forth between two positions
-        if distance == 0:
-            self.cur_position += 1
-            if self.cur_position >= 4:
-                self.cur_position = 0
-                
-        
-
-
+            #update self.cur_position so enemy moves back and forth between two positions
+            if distance <= speed:
+                self.cur_position += 1
+                if self.cur_position >= len(self.position_list):
+                    self.cur_position = 0
 
 class User(arcade.Sprite):
     """ User Class """
@@ -93,8 +113,8 @@ class User(arcade.Sprite):
         super().__init__(image, scale)
         self.change_x = 0
         self.change_y = 0
-        self.left = 210
-        self.right = 240
+        self.left = 325
+        self.right = 325
         self.top = 65
         self.bottom = 35
 
@@ -166,21 +186,22 @@ class Game(arcade.Window):
         self.enemy_list = arcade.SpriteList()
 
         #List of points the enemy will travel too 
-        position_list = [[25,500],
-                        [425,500],
-                        [25,500],
-                        [425,500]]
-
+        position_list = [[25,650],
+                        [75,650]]
         #Create enemy
-        enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
-        
+        for i in range(0, self.width - 50, 50):
+            temp_pos_list = []
+            for point in position_list:
+                temp_pos_list.append([point[0]+40, point[1]])
+            position_list = temp_pos_list
+            enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list, movement_coefficients=[[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] + 50.0, -20.0],[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] - 50.0, 20.0]])
 
-        #Set enemy initial position
-        enemy.center_x = 225
-        enemy.center_y = 500
+            #Set enemy initial position
+            enemy.center_x = position_list[0][0]
+            enemy.center_y = position_list[0][1]
 
-        #append enemy to enemy_list
-        self.enemy_list.append(enemy)
+            #append enemy to enemy_list
+            self.enemy_list.append(enemy)
                 
 
 
@@ -201,6 +222,16 @@ class Game(arcade.Window):
         self.enemy_list.update()
 
         self.user.avoid_boundaries()
+
+        #check if any enemies are diving
+        diving = False
+        for enemy in self.enemy_list:
+            if(enemy.diving):
+                diving = True
+        #if no enemies are diving, randomly assign an enemy to dive
+        if(not(diving)):
+            index = random.randint(0,len(self.enemy_list))
+            self.enemy_list[index].diving = True
         
         # TODO: If user collides with rocket (rocket isn't made yet)
         # store in list
