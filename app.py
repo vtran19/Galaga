@@ -20,6 +20,9 @@ UNIT_VECTOR_DOWN = [0.0,-1.0]
 SPRITE_SCALING_ENEMY = 2
 ENEMY_SPEED = 1
 ENEMY_INITIAL_SPACING = 25
+# Pellet Constants
+PELLET_SPEED = 5
+SPRITE_SCALE_PELLET = .07
 class Enemy(arcade.Sprite):
     """
         Class to represent enemies on the screen. Likely to split up into more than one class
@@ -133,24 +136,6 @@ class User(arcade.Sprite):
         elif self.right > SCREEN_WIDTH - 1:
             self.right = SCREEN_WIDTH - 1
 
-    def avoid_boundaries(self):
-        # Makes sure user never goes beyond the edges of the screen
-        if self.left <= 0:
-            self.center_x += 5 
-            self.left += 5
-            self.right += 5
-        if self.right >= SCREEN_WIDTH:
-            self.center_x -= 5
-            self.right -= 5
-            self.left -= 5
-        if self.top >= SCREEN_HEIGHT:
-            self.center_y -= 5
-            self.top -= 5
-            self.bottom -= 5
-        if self.bottom <=0:
-            self.center_y += 5
-            self.top += 5
-            self.bottom += 5
 
 
 class Game(arcade.Window):
@@ -171,6 +156,7 @@ class Game(arcade.Window):
 
         self.user = None
         self.enemy_list = None
+        self.pellet_list = None
 
         # Set background color
         self.background_color = arcade.color.BLACK
@@ -184,6 +170,7 @@ class Game(arcade.Window):
 
         #Sprite Lists
         self.enemy_list = arcade.SpriteList()
+        self.pellet_list = arcade.SpriteList()
 
         #List of points the enemy will travel too 
         position_list = [[25,650],
@@ -221,8 +208,6 @@ class Game(arcade.Window):
         self.user.update()
         self.enemy_list.update()
 
-        self.user.avoid_boundaries()
-
         #check if any enemies are diving
         diving = False
         for enemy in self.enemy_list:
@@ -233,13 +218,20 @@ class Game(arcade.Window):
             index = random.randint(0,len(self.enemy_list))
             self.enemy_list[index].diving = True
         
-        # TODO: If user collides with rocket (rocket isn't made yet)
-        # store in list
-        # colliding_with = arcade.check_for_collision_with_list(
-        #     self.user, #TODO: put list of potential colliding items here (missles)
-        # )
+        self.pellet_list.update()
 
-        #TODO: Loop through  olliding_with and take away a life etc.
+        for pellet in self.pellet_list:
+
+            # Checks to see if the bullet hit the enemies
+            colliding_with = arcade.check_for_collision_with_list(pellet, self.enemy_list)
+
+            # Removes bullet if hit enemy
+            if len(colliding_with) > 0:
+                pellet.remove_from_sprite_lists()
+            
+            # Removes bullet if off screen
+            if pellet.bottom > SCREEN_HEIGHT:
+                pellet.remove_from_sprite_lists()
 
     def on_draw(self):
         arcade.start_render()
@@ -247,6 +239,8 @@ class Game(arcade.Window):
         self.timer_text.draw()
         self.enemy_list.draw()
         self.user.draw()
+        for pellet in self.pellet_list:
+            pellet.draw()
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
@@ -254,6 +248,20 @@ class Game(arcade.Window):
             self.user.change_x = -USER_SPEED
         elif key == arcade.key.RIGHT:
             self.user.change_x = USER_SPEED
+        elif key == arcade.key.SPACE:
+            # Create a pellet
+            pellet = arcade.Sprite("./resources/images/pellet.png", SPRITE_SCALE_PELLET)
+            
+            # Set pellet speed
+            pellet.change_y = PELLET_SPEED
+
+            # Puts pellet in position of user
+            pellet.center_x = self.user.center_x
+            pellet.bottom = self.user.top
+
+            # Add pellet to list
+            self.pellet_list.append(pellet)
+
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
