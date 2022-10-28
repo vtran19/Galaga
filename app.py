@@ -10,8 +10,15 @@ from time import perf_counter
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Galaga"
+
+# Background Constants
+BACKGROUND_SPRITE_SPEED = 100
+BACKGROUND_SPRITE_FREQ = 60
+BACKGROUND_SPRITE_SIZE = 2
+
+# User Constants
 SPRITE_SCALE_USER = 0.04
-USER_SPEED = 3.0
+USER_SPEED = 2.0
 
 # Enemy Constants
 SPRITE_SCALING_ENEMY = 2
@@ -36,7 +43,6 @@ class Enemy(arcade.Sprite):
         self.position_list = position_list
         self.cur_position = 0
         self.speed = ENEMY_SPEED
-
 
     def update(self):
         """Make enemies follow a path. To start, enemies move side to side"""
@@ -113,13 +119,27 @@ class User(arcade.Sprite):
             self.right = SCREEN_WIDTH - 1
 
 
+class BackgroundSprite(arcade.Sprite):
+    """ Background Sprite Class"""
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self._color = (random.randrange(256), random.randrange(256), random.randrange(256))
+
+    def reset_pos(self):
+        self.x = random.randrange(SCREEN_WIDTH)
+        self.y = random.randrange(SCREEN_HEIGHT, SCREEN_HEIGHT+100)
+
+
 class GameView(arcade.View):
     def __init__(self):
         # Call the parent class initializer
         super().__init__()
 
+        # Empty Lists are made
         self.user = None
         self.enemy_list = None
+        self.background_sprite_list = None
 
         # Set background color
         self.background_color = arcade.color.BLACK
@@ -128,40 +148,50 @@ class GameView(arcade.View):
         # Set up the user
         self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
 
-        # Sprite Lists
+        # Enemy sprites
         self.enemy_list = arcade.SpriteList()
-
         # List of points the enemy will travel too
         position_list = [[25,500],
                         [425,500],
                         [25,500],
                         [425,500]]
-
         # Create enemy
         enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list)
-
         # Set enemy initial position
         enemy.center_x = 225
         enemy.center_y = 500
-
         # append enemy to enemy_list
         self.enemy_list.append(enemy)
+
+        # Background Sprites
+        self.background_sprite_list = []
+        for i in range(BACKGROUND_SPRITE_FREQ):
+            background_sprite = BackgroundSprite()
+            background_sprite.x = random.randrange(SCREEN_WIDTH)
+            background_sprite.y = random.randrange(SCREEN_HEIGHT + 200)
+            self.background_sprite_list.append(background_sprite)
 
     def on_update(self, delta_time):
         self.user.update()
         self.enemy_list.update()
-        
+        for background_sprite in self.background_sprite_list:
+            background_sprite.y -= BACKGROUND_SPRITE_SPEED * delta_time
+            if background_sprite.y < 0:
+                background_sprite.reset_pos()
+
         # TODO: If user collides with rocket (rocket isn't made yet)
         # store in list
         # colliding_with = arcade.check_for_collision_with_list(
         #     self.user, #TODO: put list of potential colliding items here (missles)
         # )
 
-        #TODO: Loop through  olliding_with and take away a life etc.
+        # TODO: Loop through  colliding_with and take away a life etc.
 
     def on_draw(self):
         arcade.start_render()
         self.clear()
+        for background_sprite in self.background_sprite_list:
+            arcade.draw_point(background_sprite.x, background_sprite.y, background_sprite.color, BACKGROUND_SPRITE_SIZE)
         self.enemy_list.draw()
         self.user.draw()
 
@@ -171,6 +201,8 @@ class GameView(arcade.View):
             self.user.change_x = -USER_SPEED
         elif key == arcade.key.RIGHT:
             self.user.change_x = USER_SPEED
+        elif key == arcade.key.Q:
+            arcade.close_window()
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
@@ -178,17 +210,38 @@ class GameView(arcade.View):
 
 
 class StartView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.background_sprite_list = None
+
     def on_show_view(self):
         arcade.set_background_color(arcade.csscolor.BLACK)
         # to reset the viewport
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
-    def on_draw(self):
-        """ Draw this view """
-        self.clear()
-        arcade.draw_text("GALAGA", 110, 400, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
+    def setup(self):
+        # Background Sprites
+        self.background_sprite_list = []
+        for i in range(BACKGROUND_SPRITE_FREQ):
+            background_sprite = BackgroundSprite()
+            background_sprite.x = random.randrange(SCREEN_WIDTH)
+            background_sprite.y = random.randrange(SCREEN_HEIGHT + 200)
+            self.background_sprite_list.append(background_sprite)
 
-        arcade.draw_text("Press S to start \n Press I for instructions \n Press Q to quit", 150, 300,
+    def on_update(self, delta_time):
+        for background_sprite in self.background_sprite_list:
+            background_sprite.y -= BACKGROUND_SPRITE_SPEED * delta_time
+            if background_sprite.y < 0:
+                background_sprite.reset_pos()
+
+    def on_draw(self):
+        self.clear()
+        # Background Sprites
+        for background_sprite in self.background_sprite_list:
+            arcade.draw_point(background_sprite.x, background_sprite.y, background_sprite.color, BACKGROUND_SPRITE_SIZE)
+        # Text
+        arcade.draw_text("GALAGA", 110, 400, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
+        arcade.draw_text("         Press S to Start\nPress I for instructions\n          Press Q to quit", 120, 300,
                          arcade.color.WHITE, 20, font_name="Kenney Pixel", multiline=True, width=300)
 
     def on_key_press(self, key, modifiers):
@@ -199,9 +252,9 @@ class StartView(arcade.View):
             self.window.show_view(game_view)
         # Instructions
         elif key == arcade.key.I:
-            game_view = InstructionsView()
+            instructions_view = InstructionsView()
             # game_view.setup()
-            self.window.show_view(game_view)
+            self.window.show_view(instructions_view)
         # Quit
         elif key == arcade.key.Q:
             arcade.close_window()
@@ -209,28 +262,35 @@ class StartView(arcade.View):
 
 class InstructionsView(arcade.View):
     def on_show_view(self):
-        """ This is run once when we switch to this view """
         arcade.set_background_color(arcade.csscolor.BLACK)
-        # to reset the viewport
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
     def on_draw(self):
-        """ Draw this view """
         self.clear()
-        arcade.draw_text("Instructions Screen", self.window.width / 2, self.window.height / 2,
-                         arcade.color.WHITE)
+        # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
+        arcade.draw_text("How to Play: ", 170, 550, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        # TODO: Write the instructions and rules for the game
+        # TODO: Make a default font global variable and default font size (20)
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        """ If the user presses the mouse button, start the game. """
-        game_view = GameView()
-        game_view.setup()
-        self.window.show_view(game_view)
+        arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        arcade.draw_text("Press Q to Return to Quit", 20, 20, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+
+    def on_key_press(self, key, modifiers):
+        # Starts Menu
+        if key == arcade.key.R:
+            start_view = StartView()
+            start_view.setup()
+            self.window.show_view(start_view)
+        # Quit
+        elif key == arcade.key.Q:
+            arcade.close_window()
 
 
 def main():
 
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     start_view = StartView()
+    start_view.setup()
     window.show_view(start_view)
     arcade.run()
 
