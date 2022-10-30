@@ -250,8 +250,7 @@ class Game(arcade.Window):
         self.timer_text.draw()
         self.enemy_list.draw()
         self.user.draw()
-        for pellet in self.pellet_list:
-            pellet.draw()
+        self.pellet_list.draw()
 
         # Draw score
         score_text = "Score: " + str(self.score)
