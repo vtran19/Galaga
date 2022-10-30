@@ -38,6 +38,7 @@ class Enemy(arcade.Sprite):
         self.cur_position = 0
         self.speed = ENEMY_SPEED
         self.movement_coefficients = movement_coefficients
+        self.movement_index = 0
         self.movement_variable = 0.01
         self.diving = False
 
@@ -50,14 +51,14 @@ class Enemy(arcade.Sprite):
         uu = u * u
         uuu = uu * u
 
-        #calculate point on curve based on self.movement_coefficients
-        point_x = (uuu * self.movement_coefficients[0][0]) + (3*uu*t* self.movement_coefficients[1][0]) + (3*u*tt* self.movement_coefficients[2][0]) + (ttt* self.movement_coefficients[3][0])
-        point_y = (uuu * self.movement_coefficients[0][1]) + (3*uu*t* self.movement_coefficients[1][1]) + (3*u*tt* self.movement_coefficients[2][1]) + (ttt* self.movement_coefficients[3][1])
+        #calculate point on curve based on self.movement_coefficients 
+        point_x = (uuu * self.movement_coefficients[self.movement_index][0][0]) + (3*uu*t* self.movement_coefficients[self.movement_index][1][0]) + (3*u*tt* self.movement_coefficients[self.movement_index][2][0]) + (ttt* self.movement_coefficients[self.movement_index][3][0])
+        point_y = (uuu * self.movement_coefficients[self.movement_index][0][1]) + (3*uu*t* self.movement_coefficients[self.movement_index][1][1]) + (3*u*tt* self.movement_coefficients[self.movement_index][2][1]) + (ttt* self.movement_coefficients[self.movement_index][3][1])
 
         #update movement_variable (t) 
         self.movement_variable += .01
         if self.movement_variable > 1.0:
-            self.movement_variable = .01
+            self.movement_variable = 0
 
         #return point
         return [point_x, point_y]
@@ -68,15 +69,22 @@ class Enemy(arcade.Sprite):
         start_x = self.center_x
         start_y = self.center_y
 
-        if(self.diving):
+        if(self.diving): #Diving Movement
+            #if movement variable is 0, need to change movement index
+            if(self.movement_variable == 0):
+                self.movement_index += 1
+                #if the index is out of bounds, enemy is no longer diving
+                if(self.movement_index>=len(self.movement_coefficients)):
+                    self.diving = False
+                    self.movement_index = 0
+            
             #call calculate_curve_point for enemy if moving along curve
             next_point = Enemy.calculate_curve_point(self)
 
             self.center_x = next_point[0]
             self.center_y = next_point[1]
 
-            if(self.center_x == self.position_list[0][0] and self.center_y == self.position_list[0][1]):
-                self.diving = False
+        
         else: #Idle Movement
             dest_x = self.position_list[self.cur_position][0]
             dest_y = self.position_list[self.cur_position][1]
@@ -194,7 +202,10 @@ class Game(arcade.Window):
             for point in position_list:
                 temp_pos_list.append([point[0]+40, point[1]])
             position_list = temp_pos_list
-            enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list, movement_coefficients=[[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] + 50.0, -20.0],[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] - 50.0, 20.0]])
+            enemy = Enemy("./resources/images/enemy/bug.png", SPRITE_SCALING_ENEMY, position_list, movement_coefficients=[
+                    [[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] + 50.0, -20.0],[position_list[0][0] + 50.0, position_list[0][1]],[position_list[0][0] - 50.0, 20.0]],
+                    [[position_list[0][0] + 50.0, -20.0],[position_list[0][0] + 50.0, 100.0],[115.0, 425.0],[75.0, 575.0]],
+                    [[75.0, 575.0],[115.0, 800.0],[350.0,650.0],[position_list[0][0],position_list[0][1]]]])
 
             #Set enemy initial position
             enemy.center_x = position_list[0][0]
