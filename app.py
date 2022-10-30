@@ -13,10 +13,10 @@ SCREEN_TITLE = "Galaga"
 
 # Background Constants
 BACKGROUND_SPRITE_SPEED = 100
-BACKGROUND_SPRITE_FREQ = 60
+BACKGROUND_SPRITE_FREQ = 75
 BACKGROUND_SPRITE_SIZE = 2
 
-# User Constants
+# user Constants
 SPRITE_SCALE_USER = 0.04
 USER_SPEED = 2.0
 
@@ -93,7 +93,7 @@ class Enemy(arcade.Sprite):
                 
 
 class User(arcade.Sprite):
-    """ User Class """
+    """ user Class """
     def __init__(self, image, scale):
         super().__init__(image, scale)
         self.change_x = 0
@@ -146,7 +146,7 @@ class GameView(arcade.View):
 
     def setup(self):
         # Set up the user
-        self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
+        self.user = User("./resources/images/user/user_ship.png", SPRITE_SCALE_USER)
 
         # Enemy sprites
         self.enemy_list = arcade.SpriteList()
@@ -194,6 +194,20 @@ class GameView(arcade.View):
             arcade.draw_point(background_sprite.x, background_sprite.y, background_sprite.color, BACKGROUND_SPRITE_SIZE)
         self.enemy_list.draw()
         self.user.draw()
+
+    def update_play_speed(self):
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = USER_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -USER_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -USER_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = USER_SPEED
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
@@ -273,7 +287,7 @@ class InstructionsView(arcade.View):
         # TODO: Make a default font global variable and default font size (20)
 
         arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 20, font_name="Kenney Pixel")
-        arcade.draw_text("Press Q to Return to Quit", 20, 20, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 20, font_name="Kenney Pixel")
 
     def on_key_press(self, key, modifiers):
         # Starts Menu
