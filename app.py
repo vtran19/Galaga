@@ -154,6 +154,10 @@ class Game(arcade.Window):
             anchor_x="center",
         )
 
+        # Score initialization
+        self.score = 0
+
+        # Initialize sprites
         self.user = None
         self.enemy_list = None
         self.pellet_list = None
@@ -167,6 +171,9 @@ class Game(arcade.Window):
 
         # Setup timer
         self.total_time = 0.0
+
+        # Keep track of score
+        self.score = 0
 
         #Sprite Lists
         self.enemy_list = arcade.SpriteList()
@@ -207,6 +214,7 @@ class Game(arcade.Window):
 
         self.user.update()
         self.enemy_list.update()
+        self.pellet_list.update()
 
         #check if any enemies are diving
         diving = False
@@ -218,16 +226,19 @@ class Game(arcade.Window):
             index = random.randint(0,len(self.enemy_list))
             self.enemy_list[index].diving = True
         
-        self.pellet_list.update()
-
+        
+        # Loop through each pellet the user shot
         for pellet in self.pellet_list:
 
             # Checks to see if the bullet hit the enemies
             colliding_with = arcade.check_for_collision_with_list(pellet, self.enemy_list)
 
-            # Removes bullet if hit enemy
             if len(colliding_with) > 0:
+                # Removes bullet if hit enemy
                 pellet.remove_from_sprite_lists()
+
+                # Adds to score
+                self.score += 200
             
             # Removes bullet if off screen
             if pellet.bottom > SCREEN_HEIGHT:
@@ -241,6 +252,16 @@ class Game(arcade.Window):
         self.user.draw()
         for pellet in self.pellet_list:
             pellet.draw()
+
+        # Draw score
+        score_text = "Score: " + str(self.score)
+        arcade.draw_text(
+            score_text,
+            10,
+            (SCREEN_HEIGHT - 25),
+            arcade.color.WHITE,
+            15
+        )
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
