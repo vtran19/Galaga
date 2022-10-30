@@ -12,6 +12,7 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Galaga"
 SPRITE_SCALE_USER = 0.04
+SPRITE_SCALE_LIVES = 0.02
 USER_SPEED = 3.0
 #Movement Constants
 UNIT_VECTOR_UP = [0.0,1.0]
@@ -124,7 +125,7 @@ class User(arcade.Sprite):
         self.left = 325
         self.right = 325
         self.top = 65
-        self.bottom = 35
+        self.bottom = 35 
 
     def update(self):
         # Updates the location of the user
@@ -160,6 +161,20 @@ class User(arcade.Sprite):
             self.top += 5
             self.bottom += 5
 
+class Lives(arcade.Sprite):
+    """ Lives Sprite Class """
+    def __init__(self, image, scale, position):
+        super().__init__(image, scale)
+        self.center_x = position[0]
+        self.center_y = position[1]
+        self.lives = 3
+    def update(self):
+        # Updates the number of lives displayed
+        self.lives -= 1
+        if self.lives == 0:
+            # have it end game
+            pass
+            
 
 class Game(arcade.Window):
     def __init__(self, width, height, title):
@@ -179,14 +194,15 @@ class Game(arcade.Window):
 
         self.user = None
         self.enemy_list = None
-
+        self.lives = None
         # Set background color
         self.background_color = arcade.color.BLACK
 
     def setup(self):
         #Set up the user
         self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
-
+        self.lives = arcade.SpriteList()
+        
         # Setup timer
         self.total_time = 0.0
 
@@ -213,6 +229,14 @@ class Game(arcade.Window):
 
             #append enemy to enemy_list
             self.enemy_list.append(enemy)
+            
+        # Create Lives
+        lives_position = [25, 20]
+        for i in range(0, 3):
+            life = Lives("./resources/images/user_ship.png", SPRITE_SCALE_LIVES, lives_position)
+            lives_position[0] += 25
+            self.lives.append(life)
+
                 
 
 
@@ -258,6 +282,7 @@ class Game(arcade.Window):
         self.timer_text.draw()
         self.enemy_list.draw()
         self.user.draw()
+        self.lives.draw()
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
