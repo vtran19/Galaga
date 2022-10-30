@@ -14,7 +14,7 @@ SCREEN_TITLE = "Galaga"
 
 # Background Constants
 BACKGROUND_SPRITE_SPEED = 100
-BACKGROUND_SPRITE_FREQ = 75
+BACKGROUND_SPRITE_FREQ = 120
 BACKGROUND_SPRITE_SIZE = 2
 
 # user Constants
@@ -214,7 +214,7 @@ class GameView(arcade.View):
 
     def setup(self):
         #Set up the user
-        self.user = User("./resources/images/user_ship.png", SPRITE_SCALE_USER)
+        self.user = User("./resources/images/user/user_ship.png", SPRITE_SCALE_USER)
         self.lives = arcade.SpriteList()
 
         # Setup timer
@@ -233,7 +233,7 @@ class GameView(arcade.View):
         position_list = [[25,650],
                         [75,650]]
         #Create enemy
-        for i in range(0, self.width - 50, 50):
+        for i in range(0, SCREEN_WIDTH - 50, 50):
             temp_pos_list = []
             for point in position_list:
                 temp_pos_list.append([point[0]+40, point[1]])
@@ -253,11 +253,9 @@ class GameView(arcade.View):
         # Create Lives
         lives_position = [25, 20]
         for i in range(0, 3):
-            life = Lives("./resources/images/user_ship.png", SPRITE_SCALE_LIVES, lives_position)
+            life = Lives("./resources/images/user/user_ship.png", SPRITE_SCALE_LIVES, lives_position)
             lives_position[0] += 25
             self.lives.append(life)
-
-                
 
         # Background Sprites
         self.background_sprite_list = []
@@ -297,7 +295,7 @@ class GameView(arcade.View):
         if(not(diving)):
             index = random.randint(0,len(self.enemy_list))
             self.enemy_list[index].diving = True
-
+            # TODO: bug ^ here, says list index out of range
 
         # Loop through each pellet the user shot
         for pellet in self.pellet_list:
@@ -336,7 +334,6 @@ class GameView(arcade.View):
             arcade.color.WHITE,
             15
         )
-
 
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
@@ -396,9 +393,9 @@ class StartView(arcade.View):
         for background_sprite in self.background_sprite_list:
             arcade.draw_point(background_sprite.x, background_sprite.y, background_sprite.color, BACKGROUND_SPRITE_SIZE)
         # Text
-        arcade.draw_text("GALAGA", 110, 400, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
-        arcade.draw_text("         Press S to Start\nPress I for instructions\n          Press Q to quit", 120, 300,
-                         arcade.color.WHITE, 20, font_name="Kenney Pixel", multiline=True, width=300)
+        arcade.draw_text("GALAGA", 80, 500, arcade.color.BLUE_GREEN, 80, font_name="Kenney Blocks")
+        arcade.draw_text("          Press S to Start\nPress I for Instructions\n            Press Q to Quit", 160, 450,
+                         arcade.color.WHITE, 30, font_name="Kenney Pixel", multiline=True, width=500)
 
     def on_key_press(self, key, modifiers):
         # Starts game
@@ -424,12 +421,12 @@ class InstructionsView(arcade.View):
     def on_draw(self):
         self.clear()
         # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
-        arcade.draw_text("How to Play: ", 170, 550, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        arcade.draw_text("How to Play: ", 200, 750, arcade.color.WHITE, 40, font_name="Kenney Pixel")
         # TODO: Write the instructions and rules for the game
         # TODO: Make a default font global variable and default font size (20)
 
-        arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 20, font_name="Kenney Pixel")
-        arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 30, font_name="Kenney Pixel")
+        arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 30, font_name="Kenney Pixel")
 
     def on_key_press(self, key, modifiers):
         # Starts Menu
