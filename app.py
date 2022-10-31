@@ -311,7 +311,8 @@ class GameView(arcade.View):
             if len(colliding_with) > 0:
                 # Removes bullet if hit enemy
                 pellet.remove_from_sprite_lists()
-
+                for enemy in colliding_with:
+                    self.enemy_list.remove(enemy)
                 # Adds to score
                 self.score += 200
 
