@@ -293,7 +293,7 @@ class GameView(arcade.View):
                 diving = True
         #if no enemies are diving, randomly assign an enemy to dive
         if(not(diving)):
-            index = random.randint(0,len(self.enemy_list))
+            index = random.randint(0,len(self.enemy_list)-1)
             self.enemy_list[index].diving = True
             # TODO: bug ^ here, says list index out of range
 
