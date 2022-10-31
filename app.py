@@ -171,14 +171,7 @@ class Lives(arcade.Sprite):
     def __init__(self, image, scale, position):
         super().__init__(image, scale)
         self.center_x = position[0]
-        self.center_y = position[1]
-        self.lives = 3
-    def update(self):
-        # Updates the number of lives displayed
-        self.lives -= 1
-        if self.lives == 0:
-            # have it end game
-            pass
+        self.center_y = position[1]   
 
 
 
@@ -285,6 +278,15 @@ class GameView(arcade.View):
             if background_sprite.y < 0:
                 background_sprite.reset_pos()
         self.pellet_list.update()
+
+        # check for user and enemy collision
+        if len(self.lives) == 0:
+            # have it end game
+            arcade.close_window()
+        colliding_with = arcade.check_for_collision_with_list(self.user, self.enemy_list)
+        if len(colliding_with) > 0:
+            self.lives.remove(self.lives[len(self.lives) - 1])
+       
 
         #check if any enemies are diving
         diving = False
