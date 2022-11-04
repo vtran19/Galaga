@@ -24,7 +24,7 @@ class GameView(arcade.View):
 
         # Initialize sprites
         # Empty Lists are made
-        self.user = None
+        self.user_list = None
         self.bug_list = None
         self.butterfly_list = None
         self.background_sprite_list = None
@@ -35,8 +35,14 @@ class GameView(arcade.View):
         self.background_color = arcade.color.BLACK
 
     def setup(self):
-        #Set up the user
-        self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+        # Setup the user
+        user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+        self.user_list = arcade.SpriteList()
+        # Append user to user list
+        self.user_list.append(user)
+
+
+        # Setup Lives
         self.lives = arcade.SpriteList()
 
         # Setup timer
@@ -45,7 +51,7 @@ class GameView(arcade.View):
         # Keep track of score
         self.score = 0
         # Set up the user
-        self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+        # self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
 
         # Enemy sprites
         self.bug_list = arcade.SpriteList()
@@ -126,7 +132,7 @@ class GameView(arcade.View):
         # format timer
         self.timer_text.text = f"{minutes:02d}:{seconds:02d}"
 
-        self.user.update()
+        self.user_list.update()
         self.bug_list.update()
         self.butterfly_list.update()
         for background_sprite in self.background_sprite_list:
@@ -172,6 +178,14 @@ class GameView(arcade.View):
             if pellet.bottom > c.SCREEN_HEIGHT:
                 pellet.remove_from_sprite_lists()
 
+        # Loop through each bug to see if it's hitting the user
+        for bug in self.bug_list:
+            # Checks to see if the bug hit the user
+            colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
+            if len(colliding_with_user) > 0:
+                # User is not alive if hit
+                self.user_list[0].alive = False
+
     def on_draw(self):
         arcade.start_render()
         self.clear()
@@ -180,7 +194,9 @@ class GameView(arcade.View):
         self.timer_text.draw()
         self.bug_list.draw()
         self.butterfly_list.draw()
-        self.user.draw()
+        # Only draw the user if they are alive
+        if self.user_list[0].alive:
+            self.user_list.draw()
         self.lives.draw()
         self.pellet_list.draw()
 
@@ -197,9 +213,9 @@ class GameView(arcade.View):
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
         if key == arcade.key.LEFT:
-            self.user.change_x = -c.USER_SPEED
+            self.user_list[0].change_x = -c.USER_SPEED
         elif key == arcade.key.RIGHT:
-            self.user.change_x = c.USER_SPEED
+            self.user_list[0].change_x = c.USER_SPEED
         elif key == arcade.key.SPACE:
             # Create a pellet
             pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
@@ -208,8 +224,8 @@ class GameView(arcade.View):
             pellet.change_y = c.PELLET_SPEED
 
             # Puts pellet in position of user
-            pellet.center_x = self.user.center_x
-            pellet.bottom = self.user.top
+            pellet.center_x = self.user_list[0].center_x
+            pellet.bottom = self.user_list[0].top
 
             # Add pellet to list
             self.pellet_list.append(pellet)
@@ -218,4 +234,4 @@ class GameView(arcade.View):
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
-            self.user.change_x = 0
+            self.user_list[0].change_x = 0

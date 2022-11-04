@@ -120,6 +120,7 @@ class User(arcade.Sprite):
         self.right = 325
         self.top = 65
         self.bottom = 35
+        self.alive = True
 
     def update(self):
         # Updates the location of the user
