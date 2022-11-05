@@ -217,18 +217,28 @@ class GameView(arcade.View):
         elif key == arcade.key.RIGHT:
             self.user_list[0].change_x = c.USER_SPEED
         elif key == arcade.key.SPACE:
-            # Create a pellet
-            pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
+            if self.user_list[0].alive:
+                # Create a pellet
+                pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
 
-            # Set pellet speed
-            pellet.change_y = c.PELLET_SPEED
+                # Set pellet speed
+                pellet.change_y = c.PELLET_SPEED
 
-            # Puts pellet in position of user
-            pellet.center_x = self.user_list[0].center_x
-            pellet.bottom = self.user_list[0].top
+                # Puts pellet in position of user
+                pellet.center_x = self.user_list[0].center_x
+                pellet.bottom = self.user_list[0].top
 
-            # Add pellet to list
-            self.pellet_list.append(pellet)
+                # Add pellet to list
+                self.pellet_list.append(pellet)
+            else:
+                arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+                # Spawns in user again, alive, in the center
+                self.user_list[0].left = 325
+                self.user_list[0].right = 325
+                self.user_list[0].top = 65
+                self.user_list[0].bottom = 35
+                self.user_list[0].alive = True
+
         elif key == arcade.key.Q:
             arcade.close_window()
 
