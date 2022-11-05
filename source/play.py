@@ -3,6 +3,7 @@ import arcade
 import random
 from source import constants as c
 
+
 class GameView(arcade.View):
     def __init__(self):
         # Call the parent class initializer
@@ -40,7 +41,6 @@ class GameView(arcade.View):
         self.user_list = arcade.SpriteList()
         # Append user to user list
         self.user_list.append(user)
-
 
         # Setup Lives
         self.lives = arcade.SpriteList()
@@ -210,6 +210,10 @@ class GameView(arcade.View):
             15
         )
 
+        # Prompt user to respawn when alive=False, removes life from bottom
+        if not self.user_list[0].alive:
+            arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+
     def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
         if key == arcade.key.LEFT:
@@ -231,7 +235,6 @@ class GameView(arcade.View):
                 # Add pellet to list
                 self.pellet_list.append(pellet)
             else:
-                arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
                 # Spawns in user again, alive, in the center
                 self.user_list[0].left = 325
                 self.user_list[0].right = 325
