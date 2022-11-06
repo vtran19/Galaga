@@ -171,6 +171,18 @@ class GameView(arcade.View):
             # Removes bullet if off screen
             if pellet.bottom > c.SCREEN_HEIGHT:
                 pellet.remove_from_sprite_lists()
+        
+        if len(self.lives) == 0:
+            # have it end game
+            arcade.close_window()
+        
+        # check for user and enemy collision
+        colliding_with = arcade.check_for_collision_with_list(self.user, self.enemy_list)
+        if len(colliding_with) > 0:
+            self.lives.remove(self.lives[len(self.lives) - 1])
+            for enemy in colliding_with:
+                self.enemy_list.remove(enemy)
+
 
     def on_draw(self):
         arcade.start_render()

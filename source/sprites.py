@@ -153,11 +153,5 @@ class Lives(arcade.Sprite):
     def __init__(self, image, scale, position):
         super().__init__(image, scale)
         self.center_x = position[0]
-        self.center_y = position[1]
-        self.lives = 3
-    def update(self):
-        # Updates the number of lives displayed
-        self.lives -= 1
-        if self.lives == 0:
-            # have it end game
-            pass
+        self.center_y = position[1]   
+        
