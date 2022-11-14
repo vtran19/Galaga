@@ -2,6 +2,7 @@ from source import sprites
 import arcade
 import random
 from source import constants as c
+import time
 
 
 class GameView(arcade.View):
@@ -23,24 +24,32 @@ class GameView(arcade.View):
         # Score initialization
         self.score = 0
 
-        # Initialize sprites
         # Empty Lists are made
         self.user_list = None
+        self.explosions_list = None
         self.bug_list = None
         self.butterfly_list = None
         self.background_sprite_list = None
-
         self.lives = None
         self.pellet_list = None
         # Set background color
         self.background_color = arcade.color.BLACK
 
+        # Set up explosion animation frames
+        self.explosion_texture_list = []
+        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion1.png"))
+        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion2.png"))
+        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion3.png"))
+        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion4.png"))
+
     def setup(self):
-        # Setup the user
+        # User
         user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
         self.user_list = arcade.SpriteList()
-        # Append user to user list
         self.user_list.append(user)
+
+        # User Explosion
+        self.explosions_list = arcade.SpriteList()
 
         # Setup Lives
         self.lives = arcade.SpriteList()
@@ -50,8 +59,6 @@ class GameView(arcade.View):
 
         # Keep track of score
         self.score = 0
-        # Set up the user
-        # self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
 
         # Enemy sprites
         self.bug_list = arcade.SpriteList()
@@ -133,6 +140,7 @@ class GameView(arcade.View):
         self.timer_text.text = f"{minutes:02d}:{seconds:02d}"
 
         self.user_list.update()
+        self.explosions_list.update()
         self.bug_list.update()
         self.butterfly_list.update()
         for background_sprite in self.background_sprite_list:
@@ -166,7 +174,7 @@ class GameView(arcade.View):
             # Checks to see if the bullet hit the enemies
             colliding_with_bug = arcade.check_for_collision_with_list(pellet, self.bug_list)
             colliding_with_butterfly = arcade.check_for_collision_with_list(pellet, self.butterfly_list)
-            
+
             if len(colliding_with_bug or colliding_with_butterfly) > 0:
                 # Removes bullet if hit enemy
                 pellet.remove_from_sprite_lists()
@@ -183,7 +191,17 @@ class GameView(arcade.View):
             # Checks to see if the bug hit the user
             colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
             if len(colliding_with_user) > 0:
-                # User is not alive if hit
+                # Make an explosion
+                explosion = sprites.UserExplosionAnimation(self.explosion_texture_list)
+                # Move it to the location of the coin
+                explosion.center_x = self.user_list[0].center_x
+                # CONSTANT HERE FOR USER HEIGHT
+                explosion.center_y = 50
+                # Call update() because it sets which image we start on
+                explosion.update()
+                # Add to a list of sprites that are explosions
+                self.explosions_list.append(explosion)
+
                 self.user_list[0].alive = False
 
     def on_draw(self):
@@ -194,6 +212,7 @@ class GameView(arcade.View):
         self.timer_text.draw()
         self.bug_list.draw()
         self.butterfly_list.draw()
+        self.explosions_list.draw()
         # Only draw the user if they are alive
         if self.user_list[0].alive:
             self.user_list.draw()

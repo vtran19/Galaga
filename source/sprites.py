@@ -2,6 +2,7 @@ import arcade
 from source import constants as c
 import math
 import random
+import time
 
 class Enemy(arcade.Sprite):
     """
@@ -138,9 +139,27 @@ class User(arcade.Sprite):
             self.right = c.SCREEN_WIDTH - 1
 
 
+class UserExplosionAnimation(arcade.Sprite):
+    """ class for user explosion animation sprite """
+    def __init__(self, texture_list):
+        super().__init__()
+        # Start at the first frame
+        self.current_texture = 0
+        self.textures = texture_list
+        self.scale = 0.02  # random number
+
+    def update(self):
+        self.current_texture += 1
+        if self.current_texture < len(self.textures):
+            self.set_texture(self.current_texture)
+        else:
+            self.remove_from_sprite_lists()
+
+
 class BackgroundSprite(arcade.Sprite):
     """ Background Sprite Class"""
     def __init__(self):
+        super().__init__()
         self.x = 0
         self.y = 0
         self._color = (random.randrange(256), random.randrange(256), random.randrange(256))
