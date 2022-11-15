@@ -35,12 +35,14 @@ class GameView(arcade.View):
         # Set background color
         self.background_color = arcade.color.BLACK
 
-        # Set up explosion animation frames
+        # Explosion animation frames
         self.explosion_texture_list = []
-        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion1.png"))
-        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion2.png"))
-        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion3.png"))
-        self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion4.png"))
+        for index in range(c.LOWER_FRAME_BOUND, c.UPPER_FRAME_BOUND):
+            self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
+                                                                   str(index) + ".png"))
+            self.explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
+                                                                   str(index) + ".png"))
+
 
     def setup(self):
         # User
@@ -191,15 +193,11 @@ class GameView(arcade.View):
             # Checks to see if the bug hit the user
             colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
             if len(colliding_with_user) > 0:
-                # Make an explosion
+                # Activate explosion animation sprite
                 explosion = sprites.UserExplosionAnimation(self.explosion_texture_list)
-                # Move it to the location of the coin
                 explosion.center_x = self.user_list[0].center_x
-                # CONSTANT HERE FOR USER HEIGHT
-                explosion.center_y = 50
-                # Call update() because it sets which image we start on
-                explosion.update()
-                # Add to a list of sprites that are explosions
+                explosion.center_y = self.user_list[0].center_y
+                # explosion.update()
                 self.explosions_list.append(explosion)
 
                 self.user_list[0].alive = False

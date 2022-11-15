@@ -8,10 +8,14 @@ BACKGROUND_SPRITE_SPEED = 100
 BACKGROUND_SPRITE_FREQ = 120
 BACKGROUND_SPRITE_SIZE = 2
 
-# user Constants
+# User Constants
 SPRITE_SCALE_USER = 0.04
 SPRITE_SCALE_LIVES = 0.02
 USER_SPEED = 2.0
+
+# User Explosion Animation Constants, must be ints
+LOWER_FRAME_BOUND = 1
+UPPER_FRAME_BOUND = 5
 
 #Movement Constants
 UNIT_VECTOR_UP = [0.0,1.0]

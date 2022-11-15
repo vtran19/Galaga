@@ -143,10 +143,9 @@ class UserExplosionAnimation(arcade.Sprite):
     """ class for user explosion animation sprite """
     def __init__(self, texture_list):
         super().__init__()
-        # Start at the first frame
         self.current_texture = 0
         self.textures = texture_list
-        self.scale = 0.02  # random number
+        self.scale = c.SPRITE_SCALE_USER
 
     def update(self):
         self.current_texture += 1
