@@ -63,7 +63,7 @@ class Enemy(arcade.Sprite):
             #if movement variable is 0, need to change movement index
             if(self.movement_variable == 0):
                 self.movement_index += 1
-                #if the index is out of bounds, enemy is no longer being initialized
+                #if the index is out of bounds, enemy is no longer being initialized, reset variables for next movement
                 if(self.movement_index>=len(self.init_coefficients)):
                     self.init = False
                     self.movement_index = 0
@@ -86,7 +86,7 @@ class Enemy(arcade.Sprite):
             #if movement variable is 0, need to change movement index
             if(self.movement_variable == 0):
                 self.movement_index += 1
-                #if the index is out of bounds, enemy is no longer diving
+                #if the index is out of bounds, enemy is no longer diving, reset variables for next movement
                 if(self.movement_index>=len(self.diving_coefficients)):
                     self.diving = False
                     self.movement_index = 0

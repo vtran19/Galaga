@@ -11,6 +11,7 @@ class GameView(arcade.View):
 
         # Timer initialization
         self.total_time = 0.0
+        self.enemy_timer = 0.0
         self.timer_text = arcade.Text(
             text="00:00:00",
             start_x=c.SCREEN_WIDTH - 425,
@@ -38,34 +39,7 @@ class GameView(arcade.View):
         # Set background color
         self.background_color = arcade.color.BLACK
 
-    def setup(self):
-        # Setup the user
-        user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
-        self.user_list = arcade.SpriteList()
-        # Append user to user list
-        self.user_list.append(user)
-
-        # Setup Lives
-        self.lives = arcade.SpriteList()
-
-        # Setup timer
-        self.total_time = 0.0
-
-        # Keep track of score
-
-        self.score = 0
-        # Set up the user
-        # self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
-
-        # Enemy sprites
-        self.bug_list = arcade.SpriteList()
-        self.butterfly_list = arcade.SpriteList()
-        self.user_pellet_list = arcade.SpriteList()
-        self.enemy_pellet_list = arcade.SpriteList()
-
-        #boolean for enemies being initialized
-        self.initialized = False
-
+    def setup_enemies(self):
         #List of points the bugs will travel too
         idle_position_list_bug = [[25,550],
                             [75,550]]
@@ -126,6 +100,36 @@ class GameView(arcade.View):
             #append enemy to butterfly_list
             self.butterfly_list.append(enemy)
 
+    def setup(self):
+        # Setup the user
+        user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+        self.user_list = arcade.SpriteList()
+        # Append user to user list
+        self.user_list.append(user)
+
+        # Setup Lives
+        self.lives = arcade.SpriteList()
+
+        # Setup timer
+        self.total_time = 0.0
+
+        # Keep track of score
+
+        self.score = 0
+        # Set up the user
+        # self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+
+        # Enemy sprites
+        self.bug_list = arcade.SpriteList()
+        self.butterfly_list = arcade.SpriteList()
+        self.user_pellet_list = arcade.SpriteList()
+        self.enemy_pellet_list = arcade.SpriteList()
+
+        #boolean for enemies being initialized
+        self.initialized = False
+
+        GameView.setup_enemies(self)
+
         # Create Lives
         lives_position = [25, 20]
         for i in range(0, 3):
@@ -140,10 +144,13 @@ class GameView(arcade.View):
             background_sprite.x = random.randrange(c.SCREEN_WIDTH)
             background_sprite.y = random.randrange(c.SCREEN_HEIGHT + 200)
             self.background_sprite_list.append(background_sprite)
+        
+    
 
     def on_update(self, delta_time):
         # get total time
         self.total_time += delta_time
+        self.enemy_timer += delta_time
 
         # Calculate minutes
         minutes = int(self.total_time) // 60
@@ -160,10 +167,11 @@ class GameView(arcade.View):
         self.user_list.update()
 
         #enemies initializing based on how much time has passed
-        seconds_100s_elapsed = seconds_100s+(100*seconds)
+        seconds_100s_elapsed = int((self.enemy_timer - (int(self.enemy_timer) % 60))*100)+(100*(int(self.enemy_timer) % 60)) 
         if(seconds_100s_elapsed < c.ENEMY_UPDATE_INTERVAL * len(self.bug_list)):
             #update number of enemies based on how much time has passed
             num_updating = seconds_100s_elapsed//c.ENEMY_UPDATE_INTERVAL
+            #for loop that updates enemies staggerdly
             for i in range(num_updating):
                 self.bug_list[i].update()
                 self.butterfly_list[i].update()
@@ -174,8 +182,62 @@ class GameView(arcade.View):
             background_sprite.y -= c.BACKGROUND_SPRITE_SPEED * delta_time
             if background_sprite.y < 0:
                 background_sprite.reset_pos()
-        self.user_pellet_list.update()
-        self.enemy_pellet_list.update()
+
+        #if all enemies have been initialized, update enemy lists
+        if(self.initialized):
+            self.bug_list.update()
+            self.butterfly_list.update()
+    
+        # Loop through each pellet the user shot
+        for pellet in self.user_pellet_list:
+
+            # Checks to see if the bullet has hit any bugs by index
+            for i in range(len(self.bug_list)):
+                colliding = arcade.check_for_collision(pellet, self.bug_list[i])
+                #if pellet has hit an enemy, remove sprites from sprite list and update score
+                if(colliding):
+                    pellet.remove_from_sprite_lists()
+                    self.bug_list[i].remove_from_sprite_lists()
+                    self.score += 200
+                    break
+            
+            # Checks to see if the bullet has hit any butterflies by index
+            for i in range(len(self.butterfly_list)):
+                colliding = arcade.check_for_collision(pellet, self.butterfly_list[i])
+                #if pellet has hit an enemy, remove sprites from sprite list and update score
+                if(colliding):
+                    pellet.remove_from_sprite_lists()
+                    self.butterfly_list[i].remove_from_sprite_lists()
+                    self.score += 500
+                    break
+
+            # Removes bullet if off screen
+            if pellet.bottom > c.SCREEN_HEIGHT:
+                pellet.remove_from_sprite_lists()
+
+        # Loop through each pellet the enemies have shot
+        for pellet in self.enemy_pellet_list:
+            #checks to see if pellet has hit the user
+            colliding = arcade.check_for_collision_with_list(pellet,self.user_list)
+            if(colliding):
+                #user is not alive if hit
+                self.user_list[0].alive = False
+
+        # Loop through each bug to see if it's hitting the user
+        for bug in self.bug_list:
+            # Checks to see if the bug hit the user
+            colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
+            if len(colliding_with_user) > 0:
+                # User is not alive if hit
+                self.user_list[0].alive = False
+        
+        # Loop through each butterfly to see if it's hitting the user
+        for but in self.butterfly_list:
+            # Checks to see if the butterfly hit the user
+            colliding_with_user = arcade.check_for_collision_with_list(but, self.user_list)
+            if len(colliding_with_user) > 0:
+                # User is not alive if hit
+                self.user_list[0].alive = False
 
         #check if any bugs are diving or if all bugs are still being initialized
         diving = False
@@ -192,6 +254,7 @@ class GameView(arcade.View):
             index = random.randint(0,len(self.bug_list)-1)
             #set diving = true and create enemy pellets
             self.bug_list[index].diving = True
+            #create 3 pellets when enemy begins to dive
             for i in range (int(self.bug_list[index].center_x) - 30,int(self.bug_list[index].center_x) +30 ,29):
                 pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)                    
                 pellet.change_y = -c.PELLET_SPEED
@@ -228,36 +291,15 @@ class GameView(arcade.View):
 
                 #append to enemy list
                 self.enemy_pellet_list.append(pellet)
-        
-        if(self.initialized):
-            self.bug_list.update()
-            self.butterfly_list.update()
-    
-        # Loop through each pellet the user shot
-        for pellet in self.user_pellet_list:
 
-            # Checks to see if the bullet hit the enemies
-            colliding_with_bug = arcade.check_for_collision_with_list(pellet, self.bug_list)
-            colliding_with_butterfly = arcade.check_for_collision_with_list(pellet, self.butterfly_list)
-            
-            if len(colliding_with_bug or colliding_with_butterfly) > 0:
-                # Removes bullet if hit enemy
-                pellet.remove_from_sprite_lists()
-
-                # Adds to score
-                self.score += 200
-
-            # Removes bullet if off screen
-            if pellet.bottom > c.SCREEN_HEIGHT:
-                pellet.remove_from_sprite_lists()
-
-        # Loop through each bug to see if it's hitting the user
-        for bug in self.bug_list:
-            # Checks to see if the bug hit the user
-            colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
-            if len(colliding_with_user) > 0:
-                # User is not alive if hit
-                self.user_list[0].alive = False
+        #if butterfly and bug lists are empty, spawn more enemies
+        if(not(self.butterfly_list) and not(self.bug_list)):
+            #set enemy timer = 0 every time enemy lists are both empty
+            GameView.setup_enemies(self)
+            self.enemy_timer = 0.0
+        #update pellets
+        self.user_pellet_list.update()
+        self.enemy_pellet_list.update()
 
     def on_draw(self):
         arcade.start_render()
