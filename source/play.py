@@ -12,6 +12,7 @@ class GameView(arcade.View):
 
         # Timer initialization
         self.total_time = 0.0
+        self.enemy_timer = 0.0
         self.timer_text = arcade.Text(
             text="00:00:00",
             start_x=c.SCREEN_WIDTH - 425,
@@ -24,6 +25,9 @@ class GameView(arcade.View):
         # Score initialization
         self.score = 0
 
+        #boolean for enemies being initialized
+        self.initialized = False
+        # Initialize sprites
         # Empty Lists are made
         self.user_list = None
         self.explosions_list = None
@@ -31,7 +35,8 @@ class GameView(arcade.View):
         self.butterfly_list = None
         self.background_sprite_list = None
         self.lives = None
-        self.pellet_list = None
+        self.user_pellet_list = None
+        self.enemy_pellet_list = None
         # Set background color
         self.background_color = arcade.color.BLACK
 
@@ -67,51 +72,96 @@ class GameView(arcade.View):
         self.butterfly_list = arcade.SpriteList()
         self.pellet_list = arcade.SpriteList()
 
+    def setup_enemies(self):
         #List of points the bugs will travel too
-        position_list_bug = [[25,550],
+        idle_position_list_bug = [[25,550],
                             [75,550]]
+        init_position_bug = [300.0,850.0]
         #Create bugs
         for i in range(0, c.SCREEN_WIDTH - 50, 50):
             temp_pos_list = []
-            for point in position_list_bug:
+            for point in idle_position_list_bug:
                 temp_pos_list.append([point[0]+40, point[1]])
-            position_list_bug = temp_pos_list
-            enemy = sprites.Enemy("./resources/images/enemy/bug.png", c.SPRITE_SCALING_BUG, position_list_bug, movement_coefficients=[
+            idle_position_list_bug = temp_pos_list
+            enemy = sprites.Enemy("./resources/images/enemy/bug.png", c.SPRITE_SCALING_BUG, idle_position_list_bug, diving_coefficients=[
                     #movement coefficients are passed to calculate_curve_point as constants that determine the movement of the enemy; all of these numbers
                     #were found mostly through trial and error
-                    [[position_list_bug[0][0] + 110.0, position_list_bug[0][1]],[position_list_bug[0][0] + 110.0, -30.0],[position_list_bug[0][0] + 90.0, position_list_bug[0][1]],[position_list_bug[0][0] - 110.0, -30.0]],
-                    [[position_list_bug[0][0] - 90.0, -30.0],[position_list_bug[0][0] + 90.0, 200.0],[position_list_bug[0][0] - 90.0 , 425.0],[position_list_bug[0][0]-150.0, 600.0]],
-                    [[position_list_bug[0][0]-150.0, 600.0],[position_list_bug[0][0]-25.0, 850.0],[position_list_bug[0][0]+165.0,700.0],[position_list_bug[0][0],position_list_bug[0][1]]]])
+                    [[idle_position_list_bug[0][0] + 110.0, idle_position_list_bug[0][1]],[idle_position_list_bug[0][0] + 110.0, -30.0],[idle_position_list_bug[0][0] + 90.0, idle_position_list_bug[0][1]],[idle_position_list_bug[0][0] - 110.0, -30.0]],
+                    [[idle_position_list_bug[0][0] - 90.0, -30.0],[idle_position_list_bug[0][0] + 90.0, 200.0],[idle_position_list_bug[0][0] - 90.0 , 425.0],[idle_position_list_bug[0][0]-150.0, 600.0]],
+                    [[idle_position_list_bug[0][0]-150.0, 600.0],[idle_position_list_bug[0][0]-25.0, 850.0],[idle_position_list_bug[0][0]+165.0,700.0],[idle_position_list_bug[0][0],idle_position_list_bug[0][1]]]],
+                    #init coefficients passed to calculate_curve_point to give enemies some initial movement before they start diving
+                    init_coefficients=[
+                        [[init_position_bug[0], init_position_bug[1]],[init_position_bug[0]-150.0,init_position_bug[1]-175.0],[init_position_bug[0]-375.0,init_position_bug[1]-150.0],[init_position_bug[0]-190.0,init_position_bug[1]-325.0]],
+                        [[init_position_bug[0]-190.0,init_position_bug[1]-325.0],[init_position_bug[0]-50.0,init_position_bug[1]-301.0],[init_position_bug[0]+150.0,init_position_bug[1]-275.0],[init_position_bug[0]+350.0,init_position_bug[1]-325.0]],
+                        [[init_position_bug[0]+350.0,init_position_bug[1]-325.0], [init_position_bug[0]+150.0,init_position_bug[1]-350.0],[init_position_bug[0],init_position_bug[1]-325.0],[idle_position_list_bug[0][0],idle_position_list_bug[0][1]]]
+                    ])
+                    #need to find a more elegant way to place these^^
 
             #Set enemy initial position
-            enemy.center_x = position_list_bug[0][0]
-            enemy.center_y = position_list_bug[0][1]
+            enemy.center_x = init_position_bug[0]
+            enemy.center_y = init_position_bug[1]
 
             #append enemy to bug_list
             self.bug_list.append(enemy)
 
         #List of points the butterflies will travel too
-        position_list_but = [[25,650],
-                            [75,650]]
+        idle_position_list_but = [[25,650],
+                                [75,650]]
+        init_position_but = [300.0,950.0]
         #Create butterflies
         for i in range(0, c.SCREEN_WIDTH - 50, 50):
             temp_pos_list = []
-            for point in position_list_but:
+            for point in idle_position_list_but:
                 temp_pos_list.append([point[0]+40, point[1]])
-            position_list_but = temp_pos_list
-            enemy = sprites.Butterfly("./resources/images/enemy/butterfly.png", c.SPRITE_SCALING_BUTTERFLY, position_list_but, movement_coefficients=[
+            idle_position_list_but = temp_pos_list
+            enemy = sprites.Butterfly("./resources/images/enemy/butterfly.png", c.SPRITE_SCALING_BUTTERFLY, idle_position_list_but, diving_coefficients=[
                     #movement coefficients are passed to calculate_curve_point as constants that determine the movement of the enemy; all of these numbers
                     #were found mostly through trial and error
-                    [[position_list_but[0][0] + 110.0, position_list_but[0][1]],[position_list_but[0][0] + 110.0, -30.0],[position_list_but[0][0] + 90.0, position_list_but[0][1]],[position_list_but[0][0] - 110.0, -30.0]],
-                    [[position_list_but[0][0] - 90.0, -30.0],[position_list_but[0][0] + 90.0, 200.0],[position_list_but[0][0] - 90.0 , 425.0],[position_list_but[0][0]-150.0, 600.0]],
-                    [[position_list_but[0][0]-150.0, 600.0],[position_list_but[0][0]-25.0, 850.0],[position_list_but[0][0]+165.0,700.0],[position_list_but[0][0],position_list_but[0][1]]]])
+                    [[idle_position_list_but[0][0] + 110.0, idle_position_list_but[0][1]],[idle_position_list_but[0][0] + 110.0, -30.0],[idle_position_list_but[0][0] + 90.0, idle_position_list_but[0][1]],[idle_position_list_but[0][0] - 110.0, -30.0]],
+                    [[idle_position_list_but[0][0] - 90.0, -30.0],[idle_position_list_but[0][0] + 90.0, 200.0],[idle_position_list_but[0][0] - 90.0 , 425.0],[idle_position_list_but[0][0]-150.0, 600.0]],
+                    [[idle_position_list_but[0][0]-150.0, 600.0],[idle_position_list_but[0][0]-25.0, 850.0],[idle_position_list_but[0][0]+165.0,700.0],[idle_position_list_but[0][0],idle_position_list_but[0][1]]]],
+                    init_coefficients=[
+                        [[init_position_but[0], init_position_but[1]],[init_position_but[0]-150.0,init_position_but[1]-175.0],[init_position_but[0]-375.0,init_position_but[1]-150.0],[init_position_but[0]-190.0,init_position_but[1]-325.0]],
+                        [[init_position_but[0]-190.0,init_position_but[1]-325.0],[init_position_but[0]-50.0,init_position_but[1]-301.0],[init_position_but[0]+150.0,init_position_but[1]-275.0],[init_position_but[0]+350.0,init_position_but[1]-325.0]],
+                        [[init_position_but[0]+350.0,init_position_but[1]-325.0], [init_position_but[0]+150.0,init_position_but[1]-350.0],[init_position_but[0],init_position_but[1]-325.0],[idle_position_list_but[0][0],idle_position_list_but[0][1]]]
+                    ])
 
             #Set enemy initial position
-            enemy.center_x = position_list_but[0][0]
-            enemy.center_y = position_list_but[0][1]
+            enemy.center_x = init_position_but[0]
+            enemy.center_y = init_position_but[1]
 
             #append enemy to butterfly_list
             self.butterfly_list.append(enemy)
+
+    def setup(self):
+        # Setup the user
+        user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+        self.user_list = arcade.SpriteList()
+        # Append user to user list
+        self.user_list.append(user)
+
+        # Setup Lives
+        self.lives = arcade.SpriteList()
+
+        # Setup timer
+        self.total_time = 0.0
+
+        # Keep track of score
+
+        self.score = 0
+        # Set up the user
+        # self.user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
+
+        # Enemy sprites
+        self.bug_list = arcade.SpriteList()
+        self.butterfly_list = arcade.SpriteList()
+        self.user_pellet_list = arcade.SpriteList()
+        self.enemy_pellet_list = arcade.SpriteList()
+
+        #boolean for enemies being initialized
+        self.initialized = False
+
+        GameView.setup_enemies(self)
 
         # Create Lives
         lives_position = [25, 20]
@@ -131,6 +181,7 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         # get total time
         self.total_time += delta_time
+        self.enemy_timer += delta_time
 
         # Calculate minutes
         minutes = int(self.total_time) // 60
@@ -138,10 +189,26 @@ class GameView(arcade.View):
         # Calculate seconds by using a modulus (remainder)
         seconds = int(self.total_time) % 60
 
+        #calculate 100s of a second
+        seconds_100s = int((self.total_time - seconds)*100)
+
         # format timer
-        self.timer_text.text = f"{minutes:02d}:{seconds:02d}"
+        self.timer_text.text = f"{minutes:02d}:{seconds:02d}:{seconds_100s:02d}"
 
         self.user_list.update()
+
+        #enemies initializing based on how much time has passed
+        seconds_100s_elapsed = int((self.enemy_timer - (int(self.enemy_timer) % 60))*100)+(100*(int(self.enemy_timer) % 60))
+        if(seconds_100s_elapsed < c.ENEMY_UPDATE_INTERVAL * len(self.bug_list)):
+            #update number of enemies based on how much time has passed
+            num_updating = seconds_100s_elapsed//c.ENEMY_UPDATE_INTERVAL
+            #for loop that updates enemies staggerdly
+            for i in range(num_updating):
+                self.bug_list[i].update()
+                self.butterfly_list[i].update()
+        else:
+            self.initialized = True
+
         self.explosions_list.update()
         self.bug_list.update()
         self.butterfly_list.update()
@@ -149,30 +216,34 @@ class GameView(arcade.View):
             background_sprite.y -= c.BACKGROUND_SPRITE_SPEED * delta_time
             if background_sprite.y < 0:
                 background_sprite.reset_pos()
-        self.pellet_list.update()
 
-        #check if any bugs are diving
-        diving = False
-        for enemy in self.bug_list:
-            if(enemy.diving):
-                diving = True
-        #if no bug are diving, randomly assign an enemy to dive
-        if(not(diving)):
-            index = random.randint(0,len(self.bug_list)-1)
-            self.bug_list[index].diving = True
-        #check if any butterflies are diving
-        diving = False
-        for enemy in self.butterfly_list:
-            if(enemy.diving):
-                diving = True
-        #if no bug are diving, randomly assign an enemy to dive
-        if(not(diving)):
-            index = random.randint(0,len(self.butterfly_list)-1)
-            self.butterfly_list[index].diving = True
+        #if all enemies have been initialized, update enemy lists
+        if(self.initialized):
+            self.bug_list.update()
+            self.butterfly_list.update()
 
         # Loop through each pellet the user shot
-        for pellet in self.pellet_list:
+        for pellet in self.user_pellet_list:
 
+            # Checks to see if the bullet has hit any bugs by index
+            for i in range(len(self.bug_list)):
+                colliding = arcade.check_for_collision(pellet, self.bug_list[i])
+                #if pellet has hit an enemy, remove sprites from sprite list and update score
+                if(colliding):
+                    pellet.remove_from_sprite_lists()
+                    self.bug_list[i].remove_from_sprite_lists()
+                    self.score += 200
+                    break
+
+            # Checks to see if the bullet has hit any butterflies by index
+            for i in range(len(self.butterfly_list)):
+                colliding = arcade.check_for_collision(pellet, self.butterfly_list[i])
+                #if pellet has hit an enemy, remove sprites from sprite list and update score
+                if(colliding):
+                    pellet.remove_from_sprite_lists()
+                    self.butterfly_list[i].remove_from_sprite_lists()
+                    self.score += 500
+                    break
             # Checks to see if the bullet hit the enemies
             colliding_with_bug = arcade.check_for_collision_with_list(pellet, self.bug_list)
             colliding_with_butterfly = arcade.check_for_collision_with_list(pellet, self.butterfly_list)
@@ -188,6 +259,14 @@ class GameView(arcade.View):
             if pellet.bottom > c.SCREEN_HEIGHT:
                 pellet.remove_from_sprite_lists()
 
+        # Loop through each pellet the enemies have shot
+        for pellet in self.enemy_pellet_list:
+            #checks to see if pellet has hit the user
+            colliding = arcade.check_for_collision_with_list(pellet,self.user_list)
+            if(colliding):
+                #user is not alive if hit
+                self.user_list[0].alive = False
+
         # Loop through each bug to see if it's hitting the user
         for bug in self.bug_list:
             # Checks to see if the bug hit the user
@@ -202,6 +281,76 @@ class GameView(arcade.View):
 
                 self.user_list[0].alive = False
 
+        # Loop through each butterfly to see if it's hitting the user
+        for but in self.butterfly_list:
+            # Checks to see if the butterfly hit the user
+            colliding_with_user = arcade.check_for_collision_with_list(but, self.user_list)
+            if len(colliding_with_user) > 0:
+                # User is not alive if hit
+                self.user_list[0].alive = False
+
+        #check if any bugs are diving or if all bugs are still being initialized
+        diving = False
+        init = True
+        for enemy in self.bug_list:
+            if(enemy.diving):
+                diving = True
+            if(not(enemy.init)):
+                init = False
+
+        #if no bugs are diving and all bugs have been initialzied, assign a bug to dive
+        if(not(diving) and not(init)):
+            #find a random bug
+            index = random.randint(0,len(self.bug_list)-1)
+            #set diving = true and create enemy pellets
+            self.bug_list[index].diving = True
+            #create 3 pellets when enemy begins to dive
+            for i in range (int(self.bug_list[index].center_x) - 30,int(self.bug_list[index].center_x) +30 ,29):
+                pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
+                pellet.change_y = -c.PELLET_SPEED
+
+                #put pellet in postion such that enemy shoots 3 evenly spaced pellets
+                pellet.center_x = i
+                pellet.bottom = self.bug_list[index].bottom
+
+                #append to enemy list
+                self.enemy_pellet_list.append(pellet)
+
+        #check if any butterflies are diving or if all butterflies have been initialized
+        diving = False
+        init = True
+        for enemy in self.butterfly_list:
+            if(enemy.diving):
+                diving = True
+            if(not(enemy.init)):
+                init = False
+
+        #if no butterflies are diving, randomly assign an enemy to dive
+        if(not(diving) and not(init)):
+            #find a random butterfly
+            index = random.randint(0,len(self.butterfly_list)-1)
+            self.butterfly_list[index].diving = True
+            #create enemy pellets
+            for i in range (int(self.butterfly_list[index].center_x) -30,int(self.butterfly_list[index].center_x) + 30, 29):
+                pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
+                pellet.change_y = -c.PELLET_SPEED
+
+                #put pellet in postion such that enemy shoots 3 evenly spaced pellets
+                pellet.center_x = i
+                pellet.bottom = self.butterfly_list[index].bottom
+
+                #append to enemy list
+                self.enemy_pellet_list.append(pellet)
+
+        #if butterfly and bug lists are empty, spawn more enemies
+        if(not(self.butterfly_list) and not(self.bug_list)):
+            #set enemy timer = 0 every time enemy lists are both empty
+            GameView.setup_enemies(self)
+            self.enemy_timer = 0.0
+        #update pellets
+        self.user_pellet_list.update()
+        self.enemy_pellet_list.update()
+
     def on_draw(self):
         arcade.start_render()
         self.clear()
@@ -215,7 +364,8 @@ class GameView(arcade.View):
         if self.user_list[0].alive:
             self.user_list.draw()
         self.lives.draw()
-        self.pellet_list.draw()
+        self.user_pellet_list.draw()
+        self.enemy_pellet_list.draw()
 
         # Draw score
         score_text = "Score: " + str(self.score)
@@ -250,7 +400,7 @@ class GameView(arcade.View):
                 pellet.bottom = self.user_list[0].top
 
                 # Add pellet to list
-                self.pellet_list.append(pellet)
+                self.user_pellet_list.append(pellet)
             else:
                 # Spawns in user again, alive, in the center
                 self.user_list[0].left = 325
