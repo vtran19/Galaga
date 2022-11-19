@@ -42,7 +42,7 @@ class GameView(arcade.View):
         # User explosion animation frames
         self.user_explosion_texture_list = []
         for index in range(c.LOWER_FRAME_BOUND, c.UPPER_FRAME_BOUND):
-            for loops in range(c.FRAME_SPEED):
+            for loops in range(c.USER_FRAME_SPEED):
                 self.user_explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
                                                                             str(index) + ".png"))
 
