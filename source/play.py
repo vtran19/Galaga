@@ -42,10 +42,10 @@ class GameView(arcade.View):
         # User explosion animation frames
         self.user_explosion_texture_list = []
         for index in range(c.LOWER_FRAME_BOUND, c.UPPER_FRAME_BOUND):
-            self.user_explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
-                                                                        str(index) + ".png"))
-            self.user_explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
-                                                                        str(index) + ".png"))
+            for loops in range(c.FRAME_SPEED):
+                self.user_explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
+                                                                            str(index) + ".png"))
+
         # Enemy explosion animation frames
 
     def setup(self):
@@ -160,7 +160,7 @@ class GameView(arcade.View):
         # Calculate seconds by using a modulus (remainder)
         seconds = int(self.total_time) % 60
 
-        #calculate 100s of a second
+        # Calculate 100s of a second
         seconds_100s = int((self.total_time - seconds)*100)
 
         # format timer
@@ -231,29 +231,27 @@ class GameView(arcade.View):
         for pellet in self.enemy_pellet_list:
             #checks to see if pellet has hit the user
             colliding = arcade.check_for_collision_with_list(pellet,self.user_list)
-            if(colliding):
-                #user is not alive if hit
+            if colliding and self.user_list[0].alive:
+                # Activate explosion animation sprite and make player is not alive
+                GameView.spawn_user_animation(self)
                 self.user_list[0].alive = False
 
         # Loop through each bug to see if it's hitting the user
         for bug in self.bug_list:
             # Checks to see if the bug hit the user
             colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
-            if len(colliding_with_user) > 0:
-                # Activate explosion animation sprite
-                user_explosion = sprites.UserExplosionAnimation(self.user_explosion_texture_list)
-                user_explosion.center_x = self.user_list[0].center_x
-                user_explosion.center_y = self.user_list[0].center_y
-                user_explosion.update()
-                self.user_explosion_list.append(user_explosion)
+            if len(colliding_with_user) > 0 and self.user_list[0].alive:
+                # Activate explosion animation sprite and make player is not alive
+                GameView.spawn_user_animation(self)
                 self.user_list[0].alive = False
 
         # Loop through each butterfly to see if it's hitting the user
         for but in self.butterfly_list:
             # Checks to see if the butterfly hit the user
             colliding_with_user = arcade.check_for_collision_with_list(but, self.user_list)
-            if len(colliding_with_user) > 0:
-                # User is not alive if hit
+            if len(colliding_with_user) > 0 and self.user_list[0].alive:
+                # Activate explosion animation sprite and make player is not alive
+                GameView.spawn_user_animation(self)
                 self.user_list[0].alive = False
 
         #check if any bugs are diving or if all bugs are still being initialized
@@ -317,6 +315,13 @@ class GameView(arcade.View):
         #update pellets
         self.user_pellet_list.update()
         self.enemy_pellet_list.update()
+
+    def spawn_user_animation(self):
+        user_explosion = sprites.UserExplosionAnimation(self.user_explosion_texture_list)
+        user_explosion.center_x = self.user_list[0].center_x
+        user_explosion.center_y = self.user_list[0].center_y
+        user_explosion.update()
+        self.user_explosion_list.append(user_explosion)
 
     def on_draw(self):
         arcade.start_render()

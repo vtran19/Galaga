@@ -15,6 +15,7 @@ USER_SPEED = 2.0
 # User Explosion Animation Constants, must be ints
 LOWER_FRAME_BOUND = 1
 UPPER_FRAME_BOUND = 5
+FRAME_SPEED = 4
 
 #Movement Constants
 UNIT_VECTOR_UP = [0.0,1.0]
