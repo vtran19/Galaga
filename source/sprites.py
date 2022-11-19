@@ -3,6 +3,7 @@ from source import constants as c
 import math
 import random
 
+
 class Enemy(arcade.Sprite):
     """
         Class to represent enemies on the screen. Likely to split up into more than one class

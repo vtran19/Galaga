@@ -23,7 +23,7 @@ class GameView(arcade.View):
         # Score initialization
         self.score = 0
 
-        #boolean for enemies being initialized
+        # boolean for enemies being initialized
         self.initialized = False
 
         # Empty Lists
