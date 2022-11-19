@@ -2,7 +2,6 @@ import arcade
 from source import constants as c
 import math
 import random
-import time
 
 class Enemy(arcade.Sprite):
     """
