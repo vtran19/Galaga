@@ -185,6 +185,22 @@ class UserExplosionAnimation(arcade.Sprite):
             self.remove_from_sprite_lists()
 
 
+class EnemyExplosionAnimation(arcade.Sprite):
+    """ class for enemy explosion animation sprite """
+    def __init__(self, texture_list):
+        super().__init__()
+        self.current_texture = 0
+        self.textures = texture_list
+        self.scale = c.ENEMY_EXPLOSION_FRAME_SCALE
+
+    def update(self):
+        self.current_texture += 1
+        if self.current_texture < len(self.textures):
+            self.set_texture(self.current_texture)
+        else:
+            self.remove_from_sprite_lists()
+
+
 class BackgroundSprite(arcade.Sprite):
     """ Background Sprite Class"""
     def __init__(self):
@@ -196,7 +212,8 @@ class BackgroundSprite(arcade.Sprite):
     def reset_pos(self):
         self.x = random.randrange(c.SCREEN_WIDTH)
         self.y = random.randrange(c.SCREEN_HEIGHT, c.SCREEN_HEIGHT+100)
-        
+
+
 class Lives(arcade.Sprite):
     """ Lives Sprite Class """
     def __init__(self, image, scale, position):

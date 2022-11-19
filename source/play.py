@@ -31,6 +31,7 @@ class GameView(arcade.View):
         self.user_explosion_list = None
         self.bug_list = None
         self.butterfly_list = None
+        self.enemy_explosion_list = None
         self.background_sprite_list = None
         self.lives = None
         self.user_pellet_list = None
@@ -41,12 +42,17 @@ class GameView(arcade.View):
 
         # User explosion animation frames
         self.user_explosion_texture_list = []
-        for index in range(c.LOWER_FRAME_BOUND, c.UPPER_FRAME_BOUND):
+        for index in range(c.USER_LOWER_FRAME_BOUND, c.USER_UPPER_FRAME_BOUND):
             for loops in range(c.USER_FRAME_SPEED):
                 self.user_explosion_texture_list.append(arcade.load_texture("./resources/images/user/ship_explosion" +
                                                                             str(index) + ".png"))
 
         # Enemy explosion animation frames
+        self.enemy_explosion_texture_list = []
+        for index in range(c.ENEMY_LOWER_FRAME_BOUND, c.ENEMY_UPPER_FRAME_BOUND):
+            for loops in range(c.ENEMY_FRAME_SPEED):
+                self.enemy_explosion_texture_list.append(arcade.load_texture("./resources/images/enemy/enemy_explosion"
+                                                                             + str(index) + ".png"))
 
     def setup(self):
         # User
@@ -56,6 +62,7 @@ class GameView(arcade.View):
 
         # User and Enemy Explosion
         self.user_explosion_list = arcade.SpriteList()
+        self.enemy_explosion_list = arcade.SpriteList()
 
         # Lives
         self.lives = arcade.SpriteList()
@@ -182,6 +189,7 @@ class GameView(arcade.View):
         self.user_explosion_list.update()
         self.bug_list.update()
         self.butterfly_list.update()
+        self.enemy_explosion_list.update()
         for background_sprite in self.background_sprite_list:
             background_sprite.y -= c.BACKGROUND_SPRITE_SPEED * delta_time
             if background_sprite.y < 0:
@@ -197,8 +205,14 @@ class GameView(arcade.View):
             # Checks to see if the bullet has hit any bugs by index
             for i in range(len(self.bug_list)):
                 colliding = arcade.check_for_collision(pellet, self.bug_list[i])
-                #if pellet has hit an enemy, remove sprites from sprite list and update score
                 if(colliding):
+                    # Enemy explosion animation
+                    enemy_explosion = sprites.EnemyExplosionAnimation(self.enemy_explosion_texture_list)
+                    enemy_explosion.center_x = self.bug_list[i].center_x
+                    enemy_explosion.center_y = self.bug_list[i].center_y
+                    enemy_explosion.update()
+                    self.enemy_explosion_list.append(enemy_explosion)
+                    # Remove pellet and bug, add to score
                     pellet.remove_from_sprite_lists()
                     self.bug_list[i].remove_from_sprite_lists()
                     self.score += 200
@@ -207,8 +221,14 @@ class GameView(arcade.View):
             # Checks to see if the bullet has hit any butterflies by index
             for i in range(len(self.butterfly_list)):
                 colliding = arcade.check_for_collision(pellet, self.butterfly_list[i])
-                #if pellet has hit an enemy, remove sprites from sprite list and update score
                 if(colliding):
+                    # Enemy explosion animation
+                    enemy_explosion = sprites.EnemyExplosionAnimation(self.enemy_explosion_texture_list)
+                    enemy_explosion.center_x = self.butterfly_list[i].center_x
+                    enemy_explosion.center_y = self.butterfly_list[i].center_y
+                    enemy_explosion.update()
+                    self.enemy_explosion_list.append(enemy_explosion)
+                    # Remove pellet and butterfly sprites, add to score
                     pellet.remove_from_sprite_lists()
                     self.butterfly_list[i].remove_from_sprite_lists()
                     self.score += 500
@@ -233,7 +253,7 @@ class GameView(arcade.View):
             colliding = arcade.check_for_collision_with_list(pellet,self.user_list)
             if colliding and self.user_list[0].alive:
                 # Activate explosion animation sprite and make player is not alive
-                GameView.spawn_user_animation(self)
+                GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
 
         # Loop through each bug to see if it's hitting the user
@@ -242,7 +262,7 @@ class GameView(arcade.View):
             colliding_with_user = arcade.check_for_collision_with_list(bug, self.user_list)
             if len(colliding_with_user) > 0 and self.user_list[0].alive:
                 # Activate explosion animation sprite and make player is not alive
-                GameView.spawn_user_animation(self)
+                GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
 
         # Loop through each butterfly to see if it's hitting the user
@@ -251,7 +271,7 @@ class GameView(arcade.View):
             colliding_with_user = arcade.check_for_collision_with_list(but, self.user_list)
             if len(colliding_with_user) > 0 and self.user_list[0].alive:
                 # Activate explosion animation sprite and make player is not alive
-                GameView.spawn_user_animation(self)
+                GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
 
         #check if any bugs are diving or if all bugs are still being initialized
@@ -316,7 +336,7 @@ class GameView(arcade.View):
         self.user_pellet_list.update()
         self.enemy_pellet_list.update()
 
-    def spawn_user_animation(self):
+    def spawn_user_explosion(self):
         user_explosion = sprites.UserExplosionAnimation(self.user_explosion_texture_list)
         user_explosion.center_x = self.user_list[0].center_x
         user_explosion.center_y = self.user_list[0].center_y
@@ -332,6 +352,7 @@ class GameView(arcade.View):
         self.bug_list.draw()
         self.butterfly_list.draw()
         self.user_explosion_list.draw()
+        self.enemy_explosion_list.draw()
         # Only draw the user if they are alive
         if self.user_list[0].alive:
             self.user_list.draw()
