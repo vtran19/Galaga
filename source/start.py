@@ -58,7 +58,7 @@ class StartView(arcade.View):
         elif key == arcade.key.I:
             self.media_player.pause()
             instructions_view = help.InstructionsView()
-            # game_view.setup()
+            instructions_view.setup()
             self.window.show_view(instructions_view)
         # Quit
         elif key == arcade.key.Q:
