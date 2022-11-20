@@ -5,14 +5,21 @@ from source import sprites
 from source import play
 from source import help
 from source import score
+import soundfile
 
 class StartView(arcade.View):
     def __init__(self):
         super().__init__()
         self.background_sprite_list = None
 
+        file_path = "./resources/sounds/theme_song.wav"
+
+        # Read and rewrite the file with soundfile
+        data, samplerate = soundfile.read(file_path)
+        soundfile.write(file_path, data, samplerate)
+
         # Load theme song
-        self.theme_song = arcade.load_sound("./resources/sounds/theme_song.wav")
+        self.theme_song = arcade.load_sound(file_path)
 
         # Play theme song
         self.media_player = self.theme_song.play()
@@ -58,7 +65,6 @@ class StartView(arcade.View):
         # High Scores
         elif key == arcade.key.H:
             score_view = score.ScoreView()
-            # game_view.setup()
             self.window.show_view(score_view)
         # Instructions
         elif key == arcade.key.I:
@@ -69,5 +75,4 @@ class StartView(arcade.View):
         # Quit
         elif key == arcade.key.Q:
             arcade.close_window()
-
 

@@ -1,7 +1,9 @@
 from source import sprites
 import arcade
 import random
+import soundfile
 from source import constants as c
+from source import over
 
 
 class GameView(arcade.View):
@@ -54,9 +56,21 @@ class GameView(arcade.View):
                 self.enemy_explosion_texture_list.append(arcade.load_texture("./resources/images/enemy/enemy_explosion"
                                                                              + str(index) + ".png"))
 
-        # Load sounds from Pixabay
-        self.shoot_sound = arcade.load_sound("./resources/sounds/shoot_sound.wav")
-        self.user_explosion_sound = arcade.load_sound("./resources/sounds/explosion.wav")
+        # Load sounds from Pixabay 
+        shoot_file_path = "./resources/sounds/shoot_sound.wav"
+        explosion_file_path = "./resources/sounds/explosion.wav"
+
+        # Read and rewrite the file with soundfile
+        data, samplerate = soundfile.read(shoot_file_path)
+        soundfile.write(shoot_file_path, data, samplerate)
+        
+
+        self.shoot_sound = arcade.load_sound(shoot_file_path)
+        
+        data, samplerate = soundfile.read(explosion_file_path)
+        soundfile.write(explosion_file_path, data, samplerate)
+
+        self.user_explosion_sound = arcade.load_sound(explosion_file_path)
 
     def setup(self):
         # User
@@ -250,18 +264,6 @@ class GameView(arcade.View):
             # Removes bullet if off screen
             if pellet.bottom > c.SCREEN_HEIGHT:
                 pellet.remove_from_sprite_lists()
-        
-        if len(self.lives) == 0:
-            # have it end game
-            arcade.close_window()
-        
-        # check for user and enemy collision
-        colliding_with = arcade.check_for_collision_with_list(self.user, self.bug_list)
-        if len(colliding_with) > 0:
-            self.lives.remove(self.lives[len(self.lives) - 1])
-            for enemy in colliding_with:
-                self.enemy_list.remove(enemy)
-
 
         # Loop through each pellet the enemies have shot
         for pellet in self.enemy_pellet_list:
@@ -295,6 +297,12 @@ class GameView(arcade.View):
                 self.user_list[0].alive = False
                 # Remove a life
                 self.lives.remove(self.lives[len(self.lives) - 1])
+
+        # if no lives remain, go to end game menu
+        if len(self.lives) < 1:
+            end_view = over.GameOverView()
+            end_view.setup()
+            self.window.show_view(end_view)
 
         #check if any bugs are diving or if all bugs are still being initialized
         diving = False
@@ -397,7 +405,7 @@ class GameView(arcade.View):
         if not self.user_list[0].alive:
             arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
 
-    def on_key_press(self, key, modifiers):
+    def on_key_press(self, key):
         # If the player presses a key, update the speed
         if key == arcade.key.LEFT:
             self.user_list[0].change_x = -c.USER_SPEED

@@ -18,12 +18,12 @@ class ScoreView(arcade.View):
         arcade.draw_text("High Scores: ", 200, 750, arcade.color.WHITE, 40, font_name="Kenney Pixel")
         
         scores = self.get_high_score()
-        arcade.draw_text(scores, 250, 750, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        arcade.draw_text(scores, 200, 600, arcade.color.WHITE, 20, font_name="Kenney Pixel")
 
         arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 30, font_name="Kenney Pixel")
         arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 30, font_name="Kenney Pixel")
 
-    def on_key_press(self, key, modifiers):
+    def on_key_press(self, key):
         # Starts Menu
         if key == arcade.key.R:
             start_view = start.StartView()
