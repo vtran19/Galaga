@@ -10,6 +10,10 @@ BACKGROUND_SPRITE_SIZE = 2
 # Start instructions constants
 KEY_SCALE = 0.75
 SHIP_IMAGE_SCALE = .07
+TITLE_FONT_SIZE = 40
+NORMAL_FONT_SIZE = 20
+MENU_FONT_SIZE = 30
+FONT = "Kenney Pixel"
 
 # User Constants
 SPRITE_SCALE_USER = 0.04

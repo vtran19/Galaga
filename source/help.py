@@ -44,20 +44,20 @@ class InstructionsView(arcade.View):
         self.clear()
 
         # Title
-        arcade.draw_text("How to Play: ", 200, 750, arcade.color.WHITE, 40, font_name="Kenney Pixel")
+        arcade.draw_text("How to Play: ", 200, 750, arcade.color.WHITE, 40, font_name=c.FONT)
 
         # Game instructions
         self.keys_list.draw()
-        arcade.draw_text("Use LEFT and RIGHT arrow keys to move ship side to side", 75, 550, arcade.color.WHITE, 20, font_name = "Kenney Pixel")
-        arcade.draw_text("Press space to shoot enemies", 175, 400, arcade.color.WHITE, 20, font_name="Kenney Pixel")
-        arcade.draw_text("Collect points by hitting enemies", 160, 225, arcade.color.WHITE, 20, font_name="Kenney Pixel")
-        arcade.draw_text("GAME OVER after 3 lives are lost", 160, 190, arcade.color.WHITE, 20, font_name="Kenney Pixel")
-        arcade.draw_text("GOOD LUCK!", 230, 150, arcade.color.WHITE, 30, font_name="Kenney Pixel")
+        arcade.draw_text("Use LEFT and RIGHT arrow keys to move ship side to side", 75, 550, arcade.color.WHITE, c.NORMAL_FONT_SIZE, font_name = "Kenney Pixel")
+        arcade.draw_text("Press space to shoot enemies", 175, 400, arcade.color.WHITE, c.NORMAL_FONT_SIZE, font_name=c.FONT)
+        arcade.draw_text("Collect points by hitting enemies", 160, 225, arcade.color.WHITE, c.NORMAL_FONT_SIZE, font_name=c.FONT)
+        arcade.draw_text("GAME OVER after 3 lives are lost", 160, 190, arcade.color.WHITE, c.NORMAL_FONT_SIZE, font_name=c.FONT)
+        arcade.draw_text("GOOD LUCK!", 230, 150, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
 
         # TODO: Make a default font global variable and default font size (20)
 
-        arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 30, font_name="Kenney Pixel")
-        arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 30, font_name="Kenney Pixel")
+        arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
+        arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
 
     def on_key_press(self, key, modifiers):
         # Starts Menu
