@@ -13,8 +13,8 @@ class GameView(arcade.View):
         self.enemy_timer = 0.0
         self.timer_text = arcade.Text(
             text="00:00:00",
-            start_x=c.SCREEN_WIDTH - 425,
-            start_y=c.SCREEN_HEIGHT - 20,
+            start_x=c.SCREEN_WIDTH - 50,
+            start_y=c.SCREEN_HEIGHT - 25,
             color=arcade.color.WHITE,
             font_size=15,
             anchor_x="center",
@@ -255,6 +255,8 @@ class GameView(arcade.View):
                 # Activate explosion animation sprite and make player is not alive
                 GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
+                # Remove a life
+                self.lives.remove(self.lives[len(self.lives) - 1])
 
         # Loop through each bug to see if it's hitting the user
         for bug in self.bug_list:
@@ -264,6 +266,8 @@ class GameView(arcade.View):
                 # Activate explosion animation sprite and make player is not alive
                 GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
+                # Remove a life
+                self.lives.remove(self.lives[len(self.lives) - 1])
 
         # Loop through each butterfly to see if it's hitting the user
         for but in self.butterfly_list:
@@ -273,6 +277,8 @@ class GameView(arcade.View):
                 # Activate explosion animation sprite and make player is not alive
                 GameView.spawn_user_explosion(self)
                 self.user_list[0].alive = False
+                # Remove a life
+                self.lives.remove(self.lives[len(self.lives) - 1])
 
         #check if any bugs are diving or if all bugs are still being initialized
         diving = False
