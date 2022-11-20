@@ -12,6 +12,7 @@ class GameOverView(arcade.View):
         super().__init__()
 
     def setup(self, score):
+        # set user name as empty
         self.user_name = ""
         self.score = score
 
@@ -30,11 +31,17 @@ class GameOverView(arcade.View):
 
 
     def on_key_press(self, key, modifiers):
-        if int(key) >= 97 or int(key) <= 122 and len(self.user_name) < 10:
-            print(key)
+
+        # make sure input is clean
+        if int(key) >= 97 and int(key) <= 122 and len(self.user_name) < 10:
             self.user_name += chr(key)
 
-        if key == arcade.key.ENTER and len(self.user_name) > 0:
+        # allow user to delete characters
+        elif key == arcade.key.BACKSPACE and len(self.user_name) > 0:
+            self.user_name = self.user_name.rstrip(self.user_name[-1])
+
+        # when user hits enter add data to db
+        elif key == arcade.key.ENTER and len(self.user_name) > 0:
             # add data to db and return to home
             db = "galaga_high_scores.db"
             connection = None
@@ -59,11 +66,10 @@ class GameOverView(arcade.View):
             finally:
                 if connection:
                     connection.close()
+            
+            # return to main menu
             start_view = start.StartView()
             start_view.setup()
             self.window.show_view(start_view)
-
-        if key == arcade.key.BACKSPACE and len(self.user_name) > 0:
-            self.user_name = self.user_name[:-1]
 
        

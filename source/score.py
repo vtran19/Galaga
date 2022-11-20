@@ -3,8 +3,6 @@ from source import start
 import sqlite3
 import os
 from sqlite3 import Error
-from tabulate import tabulate
-
 
 
 class ScoreView(arcade.View):
@@ -17,7 +15,10 @@ class ScoreView(arcade.View):
         # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
         arcade.draw_text("High Scores", 90, 650, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
         
+        # get scores
         scores = self.get_high_score()
+
+        # print the list of users and scores
         y_position = 600
         for row in scores:
             x_position = 60
