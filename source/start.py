@@ -5,14 +5,24 @@ from source import sprites
 from source import play
 from source import help
 from source import score
+import soundfile
+import sqlite3
+from sqlite3 import Error
+
 
 class StartView(arcade.View):
     def __init__(self):
         super().__init__()
         self.background_sprite_list = None
 
+        file_path = "./resources/sounds/theme_song.wav"
+
+        # Read and rewrite the file with soundfile
+        data, samplerate = soundfile.read(file_path)
+        soundfile.write(file_path, data, samplerate)
+
         # Load theme song
-        self.theme_song = arcade.load_sound("./resources/sounds/theme_song.wav")
+        self.theme_song = arcade.load_sound(file_path)
 
         # Play theme song
         self.media_player = self.theme_song.play()
@@ -31,6 +41,32 @@ class StartView(arcade.View):
             background_sprite.x = random.randrange(c.SCREEN_WIDTH)
             background_sprite.y = random.randrange(c.SCREEN_HEIGHT + 200)
             self.background_sprite_list.append(background_sprite)
+        
+        # create database
+        db = "galaga_high_scores.db"
+        connection = None
+
+        # exception handling for opening files
+        try:
+            # connect to the database file or create it if it doesn't exist
+            connection = sqlite3.connect(db)
+
+            # database cursor
+            cursor = connection.cursor()
+
+            # get top 10 scores from existing db
+            # create table for score if not already created
+            create_score_table = 'CREATE TABLE IF NOT EXISTS HighScores(user_name TEXT NOT NULL, score INTEGER NOT NULL, date TEXT NOT NULL);'
+            cursor.execute(create_score_table)
+            
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if connection:
+                connection.close()
+
 
     def on_update(self, delta_time):
         for background_sprite in self.background_sprite_list:
@@ -58,7 +94,6 @@ class StartView(arcade.View):
         # High Scores
         elif key == arcade.key.H:
             score_view = score.ScoreView()
-            # game_view.setup()
             self.window.show_view(score_view)
         # Instructions
         elif key == arcade.key.I:
@@ -69,5 +104,4 @@ class StartView(arcade.View):
         # Quit
         elif key == arcade.key.Q:
             arcade.close_window()
-
 
