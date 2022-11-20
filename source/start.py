@@ -57,6 +57,7 @@ class StartView(arcade.View):
             self.window.show_view(game_view)
         # High Scores
         elif key == arcade.key.H:
+            self.media_player.pause()
             score_view = score.ScoreView()
             # game_view.setup()
             self.window.show_view(score_view)
