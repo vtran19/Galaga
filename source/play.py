@@ -12,8 +12,8 @@ class GameView(arcade.View):
         self.total_time = 0.0
         self.timer_text = arcade.Text(
             text="00:00:00",
-            start_x=c.SCREEN_WIDTH - 425,
-            start_y=c.SCREEN_HEIGHT - 20,
+            start_x=c.SCREEN_WIDTH - 50,
+            start_y=c.SCREEN_HEIGHT - 25,
             color=arcade.color.WHITE,
             font_size=15,
             anchor_x="center",
@@ -177,7 +177,7 @@ class GameView(arcade.View):
             arcade.close_window()
         
         # check for user and enemy collision
-        colliding_with = arcade.check_for_collision_with_list(self.user, self.enemy_list)
+        colliding_with = arcade.check_for_collision_with_list(self.user, self.bug_list)
         if len(colliding_with) > 0:
             self.lives.remove(self.lives[len(self.lives) - 1])
             for enemy in colliding_with:
