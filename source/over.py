@@ -11,8 +11,9 @@ class GameOverView(arcade.View):
     def __init__(self):
         super().__init__()
 
-    def setup(self):
+    def setup(self, score):
         self.user_name = ""
+        self.score = score
 
     def on_show_view(self):
         arcade.set_background_color(arcade.csscolor.BLACK)
@@ -21,17 +22,19 @@ class GameOverView(arcade.View):
     def on_draw(self):
         self.clear()
         # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
-        arcade.draw_text("GAME OVER", 150, 500, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
-        arcade.draw_text("Enter name (< 20 characters, press enter when done):", 20, 400, arcade.color.WHITE, 25, font_name="Kenney Pixel")
-        arcade.draw_text(self.user_name, 100, 200, arcade.color.WHITE, 25, font_name="Kenney Pixel")
+        arcade.draw_text("GAME OVER", 100, 650, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
+        arcade.draw_text("Enter Name:", 30, 400, arcade.color.WHITE, 25, font_name="Kenney Pixel")
+        arcade.draw_text(self.user_name, 250, 400, arcade.color.WHITE, 25, font_name="Kenney Pixel")
+        arcade.draw_text("Press ENTER When Done", 30, 200, arcade.color.WHITE, 25, font_name="Kenney Pixel")
 
 
-    def on_key_press(self, key):
-        if len(self.user_name) < 20:
-            self.user_name += key
-        elif key == arcade.key.BACKSPACE and len(self.user_name) > 0:
-            self.user_name = self.user_name[:-1]
-        elif key == arcade.key.ENTER and len(self.user_name) > 0:
+
+    def on_key_press(self, key, modifiers):
+        if int(key) >= 97 or int(key) <= 122 and len(self.user_name) < 10:
+            print(key)
+            self.user_name += chr(key)
+
+        if key == arcade.key.ENTER and len(self.user_name) > 0:
             # add data to db and return to home
             db = "galaga_high_scores.db"
             connection = None
@@ -46,8 +49,9 @@ class GameOverView(arcade.View):
                 cursor = connection.cursor()
 
                 # add naem, score, and date to database
-                add_score = 'INSERT INTO HighScores VALUES({},{},{});'.format(self.user_name, play.score, today)
+                add_score = 'INSERT INTO HighScores (user_name, score, date) VALUES("{}",{},"{}");'.format(self.user_name, self.score, today)
                 cursor.execute(add_score)
+                connection.commit()
 
             except Error as e:
                 print(e)
@@ -58,3 +62,8 @@ class GameOverView(arcade.View):
             start_view = start.StartView()
             start_view.setup()
             self.window.show_view(start_view)
+
+        if key == arcade.key.BACKSPACE and len(self.user_name) > 0:
+            self.user_name = self.user_name[:-1]
+
+       

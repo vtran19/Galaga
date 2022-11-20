@@ -6,6 +6,9 @@ from source import play
 from source import help
 from source import score
 import soundfile
+import sqlite3
+from sqlite3 import Error
+
 
 class StartView(arcade.View):
     def __init__(self):
@@ -38,6 +41,32 @@ class StartView(arcade.View):
             background_sprite.x = random.randrange(c.SCREEN_WIDTH)
             background_sprite.y = random.randrange(c.SCREEN_HEIGHT + 200)
             self.background_sprite_list.append(background_sprite)
+        
+        # create database
+        db = "galaga_high_scores.db"
+        connection = None
+
+        # exception handling for opening files
+        try:
+            # connect to the database file or create it if it doesn't exist
+            connection = sqlite3.connect(db)
+
+            # database cursor
+            cursor = connection.cursor()
+
+            # get top 10 scores from existing db
+            # create table for score if not already created
+            create_score_table = 'CREATE TABLE IF NOT EXISTS HighScores(user_name TEXT NOT NULL, score INTEGER NOT NULL, date TEXT NOT NULL);'
+            cursor.execute(create_score_table)
+            
+
+        except Error as e:
+            print(e)
+
+        finally:
+            if connection:
+                connection.close()
+
 
     def on_update(self, delta_time):
         for background_sprite in self.background_sprite_list:

@@ -15,15 +15,27 @@ class ScoreView(arcade.View):
     def on_draw(self):
         self.clear()
         # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
-        arcade.draw_text("High Scores: ", 200, 750, arcade.color.WHITE, 40, font_name="Kenney Pixel")
+        arcade.draw_text("High Scores", 90, 650, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
         
         scores = self.get_high_score()
-        arcade.draw_text(scores, 200, 600, arcade.color.WHITE, 20, font_name="Kenney Pixel")
+        y_position = 600
+        for row in scores:
+            x_position = 60
+            i = 0
+            for col in row:
+                if i == 1:
+                    arcade.draw_text(col, x_position, y_position, arcade.color.GREEN, 20, font_name="Kenney Pixel")
+                    x_position += 200
+                else:
+                    arcade.draw_text(col, x_position, y_position, arcade.color.GREEN, 20, font_name="Kenney Pixel")
+                    x_position += 90
+                i += 1
+            y_position -= 50
 
         arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 30, font_name="Kenney Pixel")
         arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 30, font_name="Kenney Pixel")
 
-    def on_key_press(self, key):
+    def on_key_press(self, key, modifiers):
         # Starts Menu
         if key == arcade.key.R:
             start_view = start.StartView()
@@ -34,7 +46,7 @@ class ScoreView(arcade.View):
             arcade.close_window()
     
     def get_high_score(self):
-        db = "galaga_high_scores.db"
+        db = "./galaga_high_scores.db"
         connection = None
         scores = None
 
@@ -45,10 +57,6 @@ class ScoreView(arcade.View):
 
             # database cursor
             cursor = connection.cursor()
-
-            # create table for score if not already created
-            create_score_table = 'CREATE TABLE IF NOT EXISTS HighScores(user_name TEXT NOT NULL, score INTEGER NOT NULL, date TEXT NOT NULL);'
-            cursor.execute(create_score_table)
 
             # get top 10 scores from existing db
             get_scores = 'SELECT ROW_NUMBER () OVER ( ORDER BY score DESC) rownum, user_name, score, date FROM HighScores LIMIT 10;'
@@ -63,5 +71,5 @@ class ScoreView(arcade.View):
             if connection:
                 connection.close()
 
-        return tabulate(scores)
+        return scores
 

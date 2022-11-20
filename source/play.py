@@ -301,7 +301,7 @@ class GameView(arcade.View):
         # if no lives remain, go to end game menu
         if len(self.lives) < 1:
             end_view = over.GameOverView()
-            end_view.setup()
+            end_view.setup(self.score)
             self.window.show_view(end_view)
 
         #check if any bugs are diving or if all bugs are still being initialized
@@ -405,7 +405,7 @@ class GameView(arcade.View):
         if not self.user_list[0].alive:
             arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
 
-    def on_key_press(self, key):
+    def on_key_press(self, key, modifiers):
         # If the player presses a key, update the speed
         if key == arcade.key.LEFT:
             self.user_list[0].change_x = -c.USER_SPEED
