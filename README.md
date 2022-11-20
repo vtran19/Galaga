@@ -1,6 +1,6 @@
 # Galaga
 ### CS 205 Final Project
-#### By: Nate Fogg, Aidan Guimont, Juli McCabe, Vanessa Tran </br></br>
+##### By: Nate Fogg, Aidan Guimont, Juli McCabe, Vanessa Tran </br></br>
 
 ## What you need to run it:
 You may need to import python arcade and tabulate via command line. You can do so with the following commands:
