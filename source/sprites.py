@@ -176,7 +176,7 @@ class UserExplosionAnimation(arcade.Sprite):
         super().__init__()
         self.current_texture = 0
         self.textures = texture_list
-        self.scale = c.SPRITE_SCALE_USER
+        self.scale = c.USER_EXPLOSION_SCALE
 
     def update(self):
         self.current_texture += 1
