@@ -54,6 +54,10 @@ class GameView(arcade.View):
                 self.enemy_explosion_texture_list.append(arcade.load_texture("./resources/images/enemy/enemy_explosion"
                                                                              + str(index) + ".png"))
 
+        # Load sounds from Pixabay
+        self.shoot_sound = arcade.load_sound("./resources/sounds/shoot_sound.wav")
+        self.user_explosion_sound = arcade.load_sound("./resources/sounds/explosion.wav")
+
     def setup(self):
         # User
         user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
@@ -348,6 +352,7 @@ class GameView(arcade.View):
         user_explosion.center_y = self.user_list[0].center_y
         user_explosion.update()
         self.user_explosion_list.append(user_explosion)
+        arcade.play_sound(self.user_explosion_sound, c.USER_EXPLOSION_VOL)
 
     def on_draw(self):
         arcade.start_render()
@@ -388,6 +393,8 @@ class GameView(arcade.View):
             self.user_list[0].change_x = c.USER_SPEED
         elif key == arcade.key.SPACE:
             if self.user_list[0].alive:
+                # Play shooting sound
+                arcade.play_sound(self.shoot_sound, c.PELLET_VOL)
                 # Create a pellet
                 pellet = arcade.Sprite("./resources/images/pellet.png", c.SPRITE_SCALE_PELLET)
                 # Set pellet speed

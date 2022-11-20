@@ -11,6 +11,13 @@ class StartView(arcade.View):
         super().__init__()
         self.background_sprite_list = None
 
+        # Load theme song
+        self.theme_song = arcade.load_sound("./resources/sounds/theme_song.wav")
+
+        # Play theme song
+        self.media_player = self.theme_song.play()
+
+
     def on_show_view(self):
         arcade.set_background_color(arcade.csscolor.BLACK)
         # to reset the viewport
@@ -44,6 +51,7 @@ class StartView(arcade.View):
     def on_key_press(self, key, modifiers):
         # Starts game
         if key == arcade.key.S:
+            self.media_player.pause()
             game_view = play.GameView()
             game_view.setup()
             self.window.show_view(game_view)
@@ -54,8 +62,9 @@ class StartView(arcade.View):
             self.window.show_view(score_view)
         # Instructions
         elif key == arcade.key.I:
+            self.media_player.pause()
             instructions_view = help.InstructionsView()
-            # game_view.setup()
+            instructions_view.setup()
             self.window.show_view(instructions_view)
         # Quit
         elif key == arcade.key.Q:
