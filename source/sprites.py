@@ -10,14 +10,8 @@ class Enemy(arcade.Sprite):
         later to reflect different enemy types
     """
     def __init__(self, image, scale, position_list, diving_coefficients, init_coefficients):
-        # timer for enemy lifespan related to movement, start timer
-        #self.start_time = perf_counter()
-        # when should the enemy randomly dive 
-        #self.dive_time = random.uniform(self.start_time + 10, self.start_time + 60)
-        # dive x location, needs to remain constant 
-        #self.dive_dest = [random.randint(0, 450), -20]
-
         super().__init__(image, scale)
+        # Initalize variables
         self.position_list = position_list
         self.cur_position = 0
         self.speed = c.ENEMY_SPEED
@@ -29,6 +23,9 @@ class Enemy(arcade.Sprite):
         self.init = True
 
     def calculate_curve_point(self):
+        """
+            Function to calculate curve point for enemy movement
+        """
         #define bezeir curve variables
         t = self.movement_variable
         tt = t ** 2
@@ -136,16 +133,19 @@ class Enemy(arcade.Sprite):
                     self.cur_position = 0
 
 class Butterfly(Enemy):
+    """
+        Class for enemy butterfly
+    """
     def __init__(self, image, scale, position_list, diving_coefficients, init_coefficients):
         Enemy.__init__(self, image, scale, position_list, diving_coefficients, init_coefficients)
-    
-    #eventually overwrite update function to implement butterflies "escorting" galaga enemies
-    #def update(self):
 
 class User(arcade.Sprite):
-    """ user Class """
+    """
+        Class for user 
+    """
     def __init__(self, image, scale):
         super().__init__(image, scale)
+        # Initalize variables for position and life status
         self.change_x = 0
         self.change_y = 0
         self.left = 325
@@ -171,14 +171,18 @@ class User(arcade.Sprite):
 
 
 class UserExplosionAnimation(arcade.Sprite):
-    """ class for user explosion animation sprite """
+    """ 
+        Class for user explosion animation sprite 
+    """
     def __init__(self, texture_list):
         super().__init__()
+        # Initalize texture variables
         self.current_texture = 0
         self.textures = texture_list
         self.scale = c.USER_EXPLOSION_SCALE
 
     def update(self):
+        # Adds textures
         self.current_texture += 1
         if self.current_texture < len(self.textures):
             self.set_texture(self.current_texture)
@@ -187,14 +191,18 @@ class UserExplosionAnimation(arcade.Sprite):
 
 
 class EnemyExplosionAnimation(arcade.Sprite):
-    """ class for enemy explosion animation sprite """
+    """ 
+        Class for enemy explosion animation sprite 
+    """
     def __init__(self, texture_list):
         super().__init__()
+        # Initalize texture variables
         self.current_texture = 0
         self.textures = texture_list
         self.scale = c.ENEMY_EXPLOSION_FRAME_SCALE
 
     def update(self):
+        # Adds textures
         self.current_texture += 1
         if self.current_texture < len(self.textures):
             self.set_texture(self.current_texture)
@@ -203,22 +211,29 @@ class EnemyExplosionAnimation(arcade.Sprite):
 
 
 class BackgroundSprite(arcade.Sprite):
-    """ Background Sprite Class"""
+    """ 
+        Background Sprite Class
+    """
     def __init__(self):
         super().__init__()
+        # Initialize variables
         self.x = 0
         self.y = 0
         self._color = (random.randrange(256), random.randrange(256), random.randrange(256))
 
     def reset_pos(self):
+        # Spawns sprites at random x and y value
         self.x = random.randrange(c.SCREEN_WIDTH)
         self.y = random.randrange(c.SCREEN_HEIGHT, c.SCREEN_HEIGHT+100)
 
 
 class Lives(arcade.Sprite):
-    """ Lives Sprite Class """
+    """ 
+        Lives Sprite Class 
+    """
     def __init__(self, image, scale, position):
         super().__init__(image, scale)
+        # Initialize lives variables
         self.center_x = position[0]
         self.center_y = position[1]   
         

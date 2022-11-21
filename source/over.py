@@ -7,7 +7,9 @@ from source import play
 from datetime import date
 
 class GameOverView(arcade.View):
-
+    """
+        Game over view class
+    """
     def __init__(self):
         super().__init__()
 
@@ -17,12 +19,14 @@ class GameOverView(arcade.View):
         self.score = score
 
     def on_show_view(self):
+        # Set the background on startup
         arcade.set_background_color(arcade.csscolor.BLACK)
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
     def on_draw(self):
         self.clear()
-        # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
+
+        # Draw text and instructions for logging high score
         arcade.draw_text("GAME OVER", 100, 650, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
         arcade.draw_text("Enter Name:", 30, 400, arcade.color.WHITE, 25, font_name="Kenney Pixel")
         arcade.draw_text(self.user_name, 250, 400, arcade.color.WHITE, 25, font_name="Kenney Pixel")
@@ -31,7 +35,6 @@ class GameOverView(arcade.View):
 
 
     def on_key_press(self, key, modifiers):
-
         # make sure input is clean
         if int(key) >= 97 and int(key) <= 122 and len(self.user_name) < 10:
             self.user_name += chr(key)

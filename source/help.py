@@ -2,7 +2,11 @@ import arcade
 from source import start
 from source import constants as c
 
+
 class InstructionsView(arcade.View):
+    """
+        View screen for instructions to play the game
+    """
     def __init__(self):
         super().__init__()
 
@@ -17,6 +21,7 @@ class InstructionsView(arcade.View):
 
 
     def on_show_view(self):
+        # Initalize background
         arcade.set_background_color(arcade.csscolor.BLACK)
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
@@ -24,7 +29,7 @@ class InstructionsView(arcade.View):
         # Create arrow keys list
         self.keys_list = arcade.SpriteList()
 
-        # Set up keys made from scratch in Canva
+        # Set up key images made from scratch in Canva
         self.arrows = arcade.Sprite("./resources/images/start/arrows.png", c.KEY_SCALE)
         self.arrows.center_x = 300
         self.arrows.center_y = 625
@@ -54,8 +59,7 @@ class InstructionsView(arcade.View):
         arcade.draw_text("GAME OVER after 3 lives are lost", 160, 190, arcade.color.WHITE, c.NORMAL_FONT_SIZE, font_name=c.FONT)
         arcade.draw_text("GOOD LUCK!", 230, 150, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
 
-        # TODO: Make a default font global variable and default font size (20)
-
+        # Return options
         arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
         arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, c.MENU_FONT_SIZE, font_name=c.FONT)
 

@@ -11,8 +11,16 @@ from sqlite3 import Error
 
 
 class StartView(arcade.View):
+    """
+        Initial menu screen for game start up
+    """
     def __init__(self):
         super().__init__()
+        """
+            Constructor
+        """
+
+        # Initialize background list
         self.background_sprite_list = None
 
         file_path = "./resources/sounds/theme_song.wav"
@@ -29,11 +37,15 @@ class StartView(arcade.View):
 
 
     def on_show_view(self):
+        # Initialize background
         arcade.set_background_color(arcade.csscolor.BLACK)
         # to reset the viewport
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
     def setup(self):
+        """
+            Setup sprites and database
+        """
         # Background Sprites
         self.background_sprite_list = []
         for i in range(c.BACKGROUND_SPRITE_FREQ):
@@ -69,6 +81,7 @@ class StartView(arcade.View):
 
 
     def on_update(self, delta_time):
+        # Changes background sprites position
         for background_sprite in self.background_sprite_list:
             background_sprite.y -= c.BACKGROUND_SPRITE_SPEED * delta_time
             if background_sprite.y < 0:
@@ -85,6 +98,9 @@ class StartView(arcade.View):
                          arcade.color.WHITE, 30, font_name="Kenney Pixel", multiline=True, width=500)
 
     def on_key_press(self, key, modifiers):
+        """
+            Choice menu
+        """
         # Starts game
         if key == arcade.key.S:
             self.media_player.pause()

@@ -6,13 +6,19 @@ from sqlite3 import Error
 
 
 class ScoreView(arcade.View):
+    """
+        Class for the score screen
+    """
+
     def on_show_view(self):
+        # Initalize background
         arcade.set_background_color(arcade.csscolor.BLACK)
         arcade.set_viewport(0, self.window.width, 0, self.window.height)
 
     def on_draw(self):
         self.clear()
-        # arcade.draw_text("text", x-location, y-location, arcade.color.TEXTCOLOR, font size, font name)
+        
+        # Title
         arcade.draw_text("High Scores", 90, 650, arcade.color.BLUE_GREEN, 40, font_name="Kenney Blocks")
         
         # get scores
@@ -33,10 +39,14 @@ class ScoreView(arcade.View):
                 i += 1
             y_position -= 50
 
+        # Return options
         arcade.draw_text("Press R to Return to Main Menu", 20, 50, arcade.color.WHITE, 30, font_name="Kenney Pixel")
         arcade.draw_text("Press Q to Quit", 20, 20, arcade.color.WHITE, 30, font_name="Kenney Pixel")
 
     def on_key_press(self, key, modifiers):
+        """
+            Function for key press
+        """
         # Starts Menu
         if key == arcade.key.R:
             start_view = start.StartView()
@@ -47,6 +57,9 @@ class ScoreView(arcade.View):
             arcade.close_window()
     
     def get_high_score(self):
+        """
+            Function that connects to high score database and fetches high scores
+        """
         db = "./galaga_high_scores.db"
         connection = None
         scores = None

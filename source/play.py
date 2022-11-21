@@ -7,9 +7,14 @@ from source import over
 
 
 class GameView(arcade.View):
+    """
+        Game view screen class
+    """
     def __init__(self):
         super().__init__()
-
+        """
+            Constructor
+        """
         # Timer initialization
         self.total_time = 0.0
         self.enemy_timer = 0.0
@@ -64,7 +69,7 @@ class GameView(arcade.View):
         data, samplerate = soundfile.read(shoot_file_path)
         soundfile.write(shoot_file_path, data, samplerate)
         
-
+        # Initalize sounds
         self.shoot_sound = arcade.load_sound(shoot_file_path)
         
         data, samplerate = soundfile.read(explosion_file_path)
@@ -73,6 +78,9 @@ class GameView(arcade.View):
         self.user_explosion_sound = arcade.load_sound(explosion_file_path)
 
     def setup(self):
+        """
+            Function to set up sprites
+        """
         # User
         user = sprites.User("./resources/images/user/user_ship.png", c.SPRITE_SCALE_USER)
         self.user_list = arcade.SpriteList()
@@ -114,6 +122,9 @@ class GameView(arcade.View):
             self.background_sprite_list.append(background_sprite)
 
     def setup_enemies(self):
+        """
+            Function to set up enemies
+        """
         #List of points the bugs will travel too
         idle_position_list_bug = [[25,550],
                             [75,550]]
@@ -175,6 +186,9 @@ class GameView(arcade.View):
             self.butterfly_list.append(enemy)
 
     def on_update(self, delta_time):
+        """
+            Function that updates sprites
+        """
         # get total time
         self.total_time += delta_time
         self.enemy_timer += delta_time
@@ -367,6 +381,9 @@ class GameView(arcade.View):
         self.enemy_pellet_list.update()
 
     def spawn_user_explosion(self):
+        """
+            Function to show user explosion when hit
+        """
         user_explosion = sprites.UserExplosionAnimation(self.user_explosion_texture_list)
         user_explosion.center_x = self.user_list[0].center_x
         user_explosion.center_y = self.user_list[0].center_y
@@ -375,8 +392,13 @@ class GameView(arcade.View):
         arcade.play_sound(self.user_explosion_sound, c.USER_EXPLOSION_VOL)
 
     def on_draw(self):
+        """
+            Draw method for all sprites and timer
+        """
         arcade.start_render()
         self.clear()
+
+        # Draws background sprites
         for background_sprite in self.background_sprite_list:
             arcade.draw_point(background_sprite.x, background_sprite.y, background_sprite.color, c.BACKGROUND_SPRITE_SIZE)
         self.timer_text.draw()
@@ -384,6 +406,7 @@ class GameView(arcade.View):
         self.butterfly_list.draw()
         self.user_explosion_list.draw()
         self.enemy_explosion_list.draw()
+        
         # Only draw the user if they are alive
         if self.user_list[0].alive:
             self.user_list.draw()
@@ -406,7 +429,10 @@ class GameView(arcade.View):
             arcade.draw_text("press space to respawn", 200, 200, arcade.color.WHITE, 20, font_name="Kenney Pixel")
 
     def on_key_press(self, key, modifiers):
-        # If the player presses a key, update the speed
+        """
+            Function that triggers when a key is pressed
+        """
+        # If the player presses an arrow key, update the speed
         if key == arcade.key.LEFT:
             self.user_list[0].change_x = -c.USER_SPEED
         elif key == arcade.key.RIGHT:
@@ -435,5 +461,8 @@ class GameView(arcade.View):
             arcade.close_window()
 
     def on_key_release(self, key, modifiers):
+        """
+            Function that's triggered when a key is released
+        """
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.user_list[0].change_x = 0
